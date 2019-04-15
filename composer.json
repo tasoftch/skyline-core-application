@@ -1,5 +1,6 @@
 {
   "name": "skyline/core-application",
+  "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
     {
