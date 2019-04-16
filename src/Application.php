@@ -21,10 +21,58 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Kernel;
+namespace Skyline\Kernel;
 
 
-class Application
+use Skyline\Kernel\Config\MainKernelConfig;
+use Skyline\Kernel\Event\LaunchEvent;
+use Skyline\Kernel\Exception\SkylineKernelDetailedException;
+use TASoft\EventManager\EventManager;
+use TASoft\Service\ServiceManager;
+
+class Application implements ApplicationInterface
 {
+    /** @var Application */
+    private static $runningApplication;
 
+    /**
+     * @return null|Application
+     */
+    public static function getRunningApplication(): ?ApplicationInterface
+    {
+        return self::$runningApplication;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function run()
+    {
+        /** @var ServiceManager $SERVICES */
+        global $SERVICES;
+        if($SERVICES instanceof ServiceManager) {
+            /** @var EventManager $eventManager */
+            $eventManager = $SERVICES->get( MainKernelConfig::SERVICE_EVENT_MANAGER );
+
+            $event = new LaunchEvent();
+            $event->setApplication($this);
+
+            if($eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event )->isPropagationStopped())
+                goto finalize;
+
+            // Store the events app as running application
+            self::$runningApplication = $event->getApplication();
+
+
+        } else {
+            $e = new SkylineKernelDetailedException("Application Launch Error", 500);
+            $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
+            throw $e;
+        }
+
+        finalize:
+        // Always trigger the tear down event.
+        $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
+    }
 }
