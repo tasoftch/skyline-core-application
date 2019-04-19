@@ -34,6 +34,8 @@
 
 namespace Skyline\Kernel;
 
+use Skyline\Router\Event\RouteEventInterface;
+
 /**
  * An object implementing ApplicationInterface should be used in skyline entry point to launch the Skyline Application.
  *
@@ -42,11 +44,15 @@ namespace Skyline\Kernel;
 interface ApplicationInterface
 {
     /**
-     * launch the application
+     * launches the application
      *
      * @return void
      */
     public function run();
 
-    public static function getRunningApplication(): ?ApplicationInterface;
+    /**
+     * Should create an event for routing
+     * @return RouteEventInterface
+     */
+    public function getRouteEvent(): RouteEventInterface;
 }

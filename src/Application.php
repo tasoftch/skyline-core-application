@@ -26,7 +26,12 @@ namespace Skyline\Kernel;
 
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Event\LaunchEvent;
-use Skyline\Kernel\Exception\SkylineKernelDetailedException;
+use Skyline\Kernel\Exception\ApplicationException;
+use Skyline\Kernel\Exception\UnresolvedRouteException;
+use Skyline\Router\Description\ActionDescriptionInterface;
+use Skyline\Router\Event\HTTPRequestRouteEvent;
+use Skyline\Router\Event\RouteEventInterface;
+use Symfony\Component\HttpFoundation\Request;
 use TASoft\EventManager\EventManager;
 use TASoft\Service\ServiceManager;
 
@@ -41,6 +46,12 @@ class Application implements ApplicationInterface
     public static function getRunningApplication(): ?ApplicationInterface
     {
         return self::$runningApplication;
+    }
+
+    public function getRouteEvent(): RouteEventInterface
+    {
+        $request = Request::createFromGlobals();
+        return new HTTPRequestRouteEvent($request);
     }
 
 
@@ -62,11 +73,18 @@ class Application implements ApplicationInterface
                 goto finalize;
 
             // Store the events app as running application
-            self::$runningApplication = $event->getApplication();
+            $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
+            $eventManager->trigger( SKY_EVENT_ROUTE, $routeEvent );
 
+            if(NULL == ($actionDescription = $routeEvent->getActionDescription()) && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
+                // Request could not be resolved!
+                $e = new UnresolvedRouteException("Could not resolve route", 404);
+                $e->setRouteEvent($routeEvent);
 
+                throw $e;
+            }
         } else {
-            $e = new SkylineKernelDetailedException("Application Launch Error", 500);
+            $e = new ApplicationException("Application Launch Error", 500);
             $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
             throw $e;
         }
@@ -74,5 +92,9 @@ class Application implements ApplicationInterface
         finalize:
         // Always trigger the tear down event.
         $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
+    }
+
+    protected function getRouteFailureActionDescription(RouteEventInterface $event): ?ActionDescriptionInterface {
+        return NULL;
     }
 }

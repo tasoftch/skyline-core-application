@@ -32,26 +32,29 @@
  *
  */
 
-// Event is triggered right at begin of the application launch.
-// An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Kernel\Event\LaunchEvent;
+namespace Skyline\Kernel\Exception;
 
-/**
- * Event is triggered right at begin of the application launch.
- * An event of type LaunchEvent is triggered. The application set by this event is the running application.
- * @see LaunchEvent::getApplication()
- * @see LaunchEvent::setApplication()
- */
-define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
 
-/**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
+use Skyline\Router\Event\RouteEventInterface;
 
-/**
- * The route event is triggered after launching the application.
- */
-define("SKY_EVENT_ROUTE", "skyline.route");
+class UnresolvedRouteException extends ApplicationException
+{
+    /** @var RouteEventInterface */
+    private $routeEvent;
+
+    /**
+     * @return RouteEventInterface
+     */
+    public function getRouteEvent(): RouteEventInterface
+    {
+        return $this->routeEvent;
+    }
+
+    /**
+     * @param RouteEventInterface $routeEvent
+     */
+    public function setRouteEvent(RouteEventInterface $routeEvent): void
+    {
+        $this->routeEvent = $routeEvent;
+    }
+}
