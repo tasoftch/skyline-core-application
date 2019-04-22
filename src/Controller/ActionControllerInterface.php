@@ -32,32 +32,18 @@
  *
  */
 
-// Event is triggered right at begin of the application launch.
-// An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Kernel\Event\LaunchEvent;
+namespace Skyline\Kernel\Controller;
+
+
+use Skyline\Router\Description\ActionDescriptionInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Event is triggered right at begin of the application launch.
- * An event of type LaunchEvent is triggered. The application set by this event is the running application.
- * @see LaunchEvent::getApplication()
- * @see LaunchEvent::setApplication()
+ * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.
+ *
+ * @package Skyline\Kernel\Controller
  */
-define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
-
-/**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
-
-/**
- * The route event is triggered after launching the application.
- */
-define("SKY_EVENT_ROUTE", "skyline.route");
-
-/**
- * If the application  could route to an action description,
- * this event is fired to instantiate an action controller instance.
- */
-define("SKY_EVENT_ACTION_CONTROLLER", 'skyline.action.create');
+interface ActionControllerInterface
+{
+    public function performAction(ActionDescriptionInterface $actionDescription): ?Response;
+}

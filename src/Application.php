@@ -25,8 +25,10 @@ namespace Skyline\Kernel;
 
 
 use Skyline\Kernel\Config\MainKernelConfig;
+use Skyline\Kernel\Event\ActionControllerEvent;
 use Skyline\Kernel\Event\LaunchEvent;
 use Skyline\Kernel\Exception\ApplicationException;
+use Skyline\Kernel\Exception\UnresolvedActionDescriptionException;
 use Skyline\Kernel\Exception\UnresolvedRouteException;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use Skyline\Router\Event\HTTPRequestRouteEvent;
@@ -62,36 +64,47 @@ class Application implements ApplicationInterface
     {
         /** @var ServiceManager $SERVICES */
         global $SERVICES;
-        if($SERVICES instanceof ServiceManager) {
-            /** @var EventManager $eventManager */
-            $eventManager = $SERVICES->get( MainKernelConfig::SERVICE_EVENT_MANAGER );
 
-            $event = new LaunchEvent();
-            $event->setApplication($this);
+        try {
+            if($SERVICES instanceof ServiceManager) {
+                /** @var EventManager $eventManager */
+                $eventManager = $SERVICES->get( MainKernelConfig::SERVICE_EVENT_MANAGER );
 
-            if($eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event )->isPropagationStopped())
-                goto finalize;
+                $event = new LaunchEvent();
+                $event->setApplication($this);
 
-            // Store the events app as running application
-            $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
-            $eventManager->trigger( SKY_EVENT_ROUTE, $routeEvent );
+                if($eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event )->isPropagationStopped())
+                    goto finalize;
 
-            if(NULL == ($actionDescription = $routeEvent->getActionDescription()) && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
-                // Request could not be resolved!
-                $e = new UnresolvedRouteException("Could not resolve route", 404);
-                $e->setRouteEvent($routeEvent);
+                // Store the events app as running application
+                $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
+                if(!$eventManager->trigger( SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
+                    $e = new UnresolvedRouteException("Could not resolve route", 404);
+                    $e->setRouteEvent($routeEvent);
+                    throw $e;
+                }
 
+                $actionEvent = new ActionControllerEvent($actionDescription);
+                if(!$eventManager->trigger(SKY_EVENT_ACTION_CONTROLLER, $actionEvent)->isPropagationStopped()) {
+                    $e = new UnresolvedActionDescriptionException("Could not resolve an action controller", 404);
+                    $e->setActionDescription($actionDescription);
+                    $e->setRouteEvent($routeEvent);
+                    throw $e;
+                }
+
+
+            } else {
+                $e = new ApplicationException("Application Launch Error", 500);
+                $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
                 throw $e;
             }
-        } else {
-            $e = new ApplicationException("Application Launch Error", 500);
-            $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
-            throw $e;
+        } catch (\Throwable $exception) {
+            throw $exception;
+        } finally {
+            finalize:
+            // Always trigger the tear down event.
+            $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
         }
-
-        finalize:
-        // Always trigger the tear down event.
-        $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
     }
 
     protected function getRouteFailureActionDescription(RouteEventInterface $event): ?ActionDescriptionInterface {

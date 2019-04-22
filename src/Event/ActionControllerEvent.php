@@ -32,32 +32,52 @@
  *
  */
 
-// Event is triggered right at begin of the application launch.
-// An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Kernel\Event\LaunchEvent;
+namespace Skyline\Kernel\Event;
 
-/**
- * Event is triggered right at begin of the application launch.
- * An event of type LaunchEvent is triggered. The application set by this event is the running application.
- * @see LaunchEvent::getApplication()
- * @see LaunchEvent::setApplication()
- */
-define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
 
-/**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
+use Skyline\Kernel\Controller\ActionControllerInterface;
+use Skyline\Router\Description\ActionDescriptionInterface;
+use TASoft\EventManager\Event\Event;
 
-/**
- * The route event is triggered after launching the application.
- */
-define("SKY_EVENT_ROUTE", "skyline.route");
+class ActionControllerEvent extends Event
+{
+    /** @var ActionDescriptionInterface */
+    private $actionDescription;
 
-/**
- * If the application  could route to an action description,
- * this event is fired to instantiate an action controller instance.
- */
-define("SKY_EVENT_ACTION_CONTROLLER", 'skyline.action.create');
+    /** @var ActionControllerInterface|null */
+    private $actionController;
+
+    /**
+     * ActionControllerEvent constructor.
+     * @param ActionDescriptionInterface $actionDescription
+     */
+    public function __construct(ActionDescriptionInterface $actionDescription)
+    {
+        $this->actionDescription = $actionDescription;
+    }
+
+
+    /**
+     * @return ActionControllerInterface|null
+     */
+    public function getActionController(): ?ActionControllerInterface
+    {
+        return $this->actionController;
+    }
+
+    /**
+     * @param ActionControllerInterface|null $actionController
+     */
+    public function setActionController(?ActionControllerInterface $actionController): void
+    {
+        $this->actionController = $actionController;
+    }
+
+    /**
+     * @return ActionDescriptionInterface
+     */
+    public function getActionDescription(): ActionDescriptionInterface
+    {
+        return $this->actionDescription;
+    }
+}
