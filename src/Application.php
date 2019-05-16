@@ -27,7 +27,9 @@ namespace Skyline\Kernel;
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Event\ActionControllerEvent;
 use Skyline\Kernel\Event\LaunchEvent;
+use Skyline\Kernel\Event\RenderResponseEvent;
 use Skyline\Kernel\Exception\ApplicationException;
+use Skyline\Kernel\Exception\RenderResponseException;
 use Skyline\Kernel\Exception\UnresolvedActionDescriptionException;
 use Skyline\Kernel\Exception\UnresolvedRouteException;
 use Skyline\Router\Description\ActionDescriptionInterface;
@@ -72,8 +74,9 @@ class Application implements ApplicationInterface
 
                 $event = new LaunchEvent();
                 $event->setApplication($this);
+                $eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event );
 
-                if($eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event )->isPropagationStopped())
+                if(!$event->getApplication())
                     goto finalize;
 
                 // Store the events app as running application
@@ -85,14 +88,28 @@ class Application implements ApplicationInterface
                 }
 
                 $actionEvent = new ActionControllerEvent($actionDescription ?? $routeEvent->getActionDescription());
-                if(!$eventManager->trigger(SKY_EVENT_ACTION_CONTROLLER, $actionEvent)->isPropagationStopped()) {
+                $eventManager->trigger(SKY_EVENT_ACTION_CONTROLLER, $actionEvent);
+
+                if(!$actionEvent->getActionController()) {
                     $e = new UnresolvedActionDescriptionException("Could not resolve an action controller", 404);
                     $e->setActionDescription($actionDescription);
                     $e->setRouteEvent($routeEvent);
                     throw $e;
                 }
 
+                $renderEvent = new RenderResponseEvent(
+                    ($routeEvent instanceof HTTPRequestRouteEvent) ? $routeEvent->getRequest() : Request::createFromGlobals(),
+                    $actionEvent->getActionController()
+                );
+                $eventManager->trigger(SKY_EVENT_RENDER_RESPONSE, $renderEvent);
 
+                if(!$renderEvent->getResponse()) {
+                    $e = new RenderResponseException("Response Render Error", 500);
+                    $e->setDetails("Application can not render response.");
+                    throw $e;
+                }
+
+                $renderEvent->getResponse()->send();
             } else {
                 $e = new ApplicationException("Application Launch Error", 500);
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");

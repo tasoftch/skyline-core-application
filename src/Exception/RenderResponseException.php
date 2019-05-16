@@ -32,30 +32,10 @@
  *
  */
 
-namespace Skyline\Kernel\Event;
+namespace Skyline\Kernel\Exception;
 
 
-use Skyline\Kernel\ApplicationInterface;
-use TASoft\EventManager\Event\Event;
-
-class LaunchEvent extends Event
+class RenderResponseException extends ApplicationException
 {
-    /** @var ApplicationInterface|null */
-    private $application;
 
-    /**
-     * @return ApplicationInterface
-     */
-    public function getApplication(): ?ApplicationInterface
-    {
-        return $this->application;
-    }
-
-    /**
-     * @param ApplicationInterface $application
-     */
-    public function setApplication(ApplicationInterface $application): void
-    {
-        $this->application = $application;
-    }
 }
