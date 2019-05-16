@@ -32,37 +32,66 @@
  *
  */
 
-// Event is triggered right at begin of the application launch.
-// An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Kernel\Event\LaunchEvent;
+namespace Skyline\Kernel\Event;
 
-/**
- * Event is triggered right at begin of the application launch.
- * An event of type LaunchEvent is triggered. The application set by this event is the running application.
- * @see LaunchEvent::getApplication()
- * @see LaunchEvent::setApplication()
- */
-define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
 
-/**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
+use Skyline\Kernel\Controller\ActionControllerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use TASoft\EventManager\Event\Event;
 
-/**
- * The route event is triggered after launching the application.
- */
-define("SKY_EVENT_ROUTE", "skyline.route");
+class RenderResponseEvent extends Event
+{
+    /** @var Request */
+    private $request;
 
-/**
- * If the application  could route to an action description,
- * this event is fired to instantiate an action controller instance.
- */
-define("SKY_EVENT_ACTION_CONTROLLER", 'skyline.action.create');
+    /** @var ActionControllerInterface */
+    private $actionController;
 
-/**
- * So finally the render event is fired to perform the action and render a response.
- */
-define("SKY_EVENT_RENDER_RESPONSE", "skyline.render");
+    /** @var Response|null */
+    private $response;
+
+    /**
+     * RenderResponseEvent constructor.
+     * @param Request $request
+     * @param ActionControllerInterface $actionController
+     */
+    public function __construct(Request $request, ActionControllerInterface $actionController)
+    {
+        $this->request = $request;
+        $this->actionController = $actionController;
+    }
+
+
+    /**
+     * @return Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    /**
+     * @return ActionControllerInterface
+     */
+    public function getActionController(): ActionControllerInterface
+    {
+        return $this->actionController;
+    }
+
+    /**
+     * @return Response|null
+     */
+    public function getResponse(): ?Response
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param Response|null $response
+     */
+    public function setResponse(?Response $response): void
+    {
+        $this->response = $response;
+    }
+}

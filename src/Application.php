@@ -84,7 +84,7 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
-                $actionEvent = new ActionControllerEvent($actionDescription);
+                $actionEvent = new ActionControllerEvent($actionDescription ?? $routeEvent->getActionDescription());
                 if(!$eventManager->trigger(SKY_EVENT_ACTION_CONTROLLER, $actionEvent)->isPropagationStopped()) {
                     $e = new UnresolvedActionDescriptionException("Could not resolve an action controller", 404);
                     $e->setActionDescription($actionDescription);
