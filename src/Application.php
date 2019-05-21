@@ -116,12 +116,13 @@ class Application implements ApplicationInterface
                 throw $e;
             }
         } catch (\Throwable $exception) {
-            throw $exception;
-        } finally {
-            finalize:
-            // Always trigger the tear down event.
-            $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
         }
+
+        finalize:
+        // Always trigger the tear down event.
+        $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
+        if(isset($exception))
+            throw $exception;
     }
 
     protected function getRouteFailureActionDescription(RouteEventInterface $event): ?ActionDescriptionInterface {
