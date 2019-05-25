@@ -22,6 +22,7 @@
     "tasoft/service-manager": "dev-master",
     "skyline/kernel": "dev-master",
     "skyline/router": "dev-master",
+    "skyline/render": "dev-master",
     "symfony/http-foundation": "^4.0"
   },
   "require-dev": {

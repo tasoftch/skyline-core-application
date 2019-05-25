@@ -35,8 +35,8 @@
 namespace Skyline\Kernel\Controller;
 
 
+use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.
@@ -45,5 +45,5 @@ use Symfony\Component\HttpFoundation\Response;
  */
 interface ActionControllerInterface
 {
-    public function performAction(ActionDescriptionInterface $actionDescription): ?Response;
+    public function performAction(ActionDescriptionInterface $actionDescription): ?RenderInfoInterface;
 }
