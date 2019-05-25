@@ -25,6 +25,7 @@ namespace Skyline\Kernel;
 
 
 use Skyline\Kernel\Config\MainKernelConfig;
+use Skyline\Kernel\Config\PluginConfig;
 use Skyline\Kernel\Event\ActionControllerEvent;
 use Skyline\Kernel\Event\LaunchEvent;
 use Skyline\Kernel\Event\RenderResponseEvent;
@@ -37,6 +38,7 @@ use Skyline\Router\Event\HTTPRequestRouteEvent;
 use Skyline\Router\Event\RouteEventInterface;
 use Symfony\Component\HttpFoundation\Request;
 use TASoft\EventManager\EventManager;
+use TASoft\EventManager\SectionEventManager;
 use TASoft\Service\ServiceManager;
 
 class Application implements ApplicationInterface
@@ -69,7 +71,7 @@ class Application implements ApplicationInterface
 
         try {
             if($SERVICES instanceof ServiceManager) {
-                /** @var EventManager $eventManager */
+                /** @var SectionEventManager $eventManager */
                 $eventManager = $SERVICES->get( MainKernelConfig::SERVICE_EVENT_MANAGER );
 
                 $event = new LaunchEvent();
@@ -81,14 +83,14 @@ class Application implements ApplicationInterface
 
                 // Store the events app as running application
                 $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
-                if(!$eventManager->trigger( SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
+                if(!$eventManager->triggerSection( PluginConfig::EVENT_SECTION_ROUTING, SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
                     $e = new UnresolvedRouteException("Could not resolve route", 404);
                     $e->setRouteEvent($routeEvent);
                     throw $e;
                 }
 
                 $actionEvent = new ActionControllerEvent($actionDescription ?? $routeEvent->getActionDescription());
-                $eventManager->trigger(SKY_EVENT_ACTION_CONTROLLER, $actionEvent);
+                $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL, SKY_EVENT_ACTION_CONTROLLER, $actionEvent);
 
                 if(!$actionEvent->getActionController()) {
                     $e = new UnresolvedActionDescriptionException("Could not resolve an action controller", 404);
@@ -101,7 +103,7 @@ class Application implements ApplicationInterface
                     ($routeEvent instanceof HTTPRequestRouteEvent) ? $routeEvent->getRequest() : Request::createFromGlobals(),
                     $actionEvent->getActionController()
                 );
-                $eventManager->trigger(SKY_EVENT_RENDER_RESPONSE, $renderEvent);
+                $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
 
                 if(!$renderEvent->getResponse()) {
                     $e = new RenderResponseException("Response Render Error", 500);
