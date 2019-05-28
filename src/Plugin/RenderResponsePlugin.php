@@ -32,34 +32,43 @@
  *
  */
 
-use Skyline\Application\Plugin\ApplicationRouterPlugin;
-use Skyline\Application\Plugin\DirectActionControllerPlugin;
-use Skyline\Application\Plugin\RenderResponsePlugin;
-use Skyline\Kernel\Config\PluginConfig;
+namespace Skyline\Application\Plugin;
 
-return [
-    [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_ROUTING,
 
-        PluginConfig::PLUGIN_FACTORY => ApplicationRouterPlugin::class,
-        PluginConfig::PLUGIN_ARGUMENTS => [
-            '$(C)/routing.config.php'
-        ]
-    ],
-    [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
-        PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_ACTION_CONTROLLER,
+use Skyline\Application\Event\RenderResponseEvent;
+use Skyline\Render\Service\CompiledRenderController;
+use TASoft\EventManager\EventManagerInterface;
+use TASoft\Service\ServiceManager;
 
-        PluginConfig::PLUGIN_CLASS => DirectActionControllerPlugin::class,
-        PluginConfig::PLUGIN_METHOD => 'makeActionController',
-        PluginConfig::PLUGIN_PRIORITY => 100
-    ],
-    [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
-        PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
+class RenderResponsePlugin
+{
+    const EVENT_PRE_ACTION = "skyline.action.pre";
+    const EVENT_MAIN_ACTION = "skyline.action.main";
+    const EVENT_POST_ACTION = "skyline.action.post";
 
-        PluginConfig::PLUGIN_CLASS => RenderResponsePlugin::class,
-        PluginConfig::PLUGIN_METHOD => 'renderResponse',
-        PluginConfig::PLUGIN_PRIORITY => 100
-    ]
-];
+
+    public function renderResponse(string $eventName, RenderResponseEvent $event, EventManagerInterface $eventManager, ...$arguments)
+    {
+        /** @var ServiceManager $SERVICES */
+        global $SERVICES;
+        if($SERVICES instanceof ServiceManager) {
+            $actionDescription = $SERVICES->get("actionDescription");
+            if(method_exists($actionDescription, 'getRenderName')) {
+                $renderName = $actionDescription->getRenderName();
+                $renderController = $SERVICES->get("renderController");
+                if($renderController instanceof CompiledRenderController) {
+                    $render = $renderController->getRender($renderName);
+
+                    $renderInfo = NULL;
+
+                    $eventManager->trigger(static::EVENT_PRE_ACTION, $event, [&$renderInfo]);
+                    $eventManager->trigger(static::EVENT_MAIN_ACTION, $event, [&$renderInfo]);
+                    $eventManager->trigger(static::EVENT_POST_ACTION, $event, [&$renderInfo]);
+
+                    $render->render($renderInfo);
+                    $event->setResponse( $render->getResponse() );
+                }
+            }
+        }
+    }
+}
