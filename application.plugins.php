@@ -37,6 +37,8 @@ use Skyline\Kernel\Config\PluginConfig;
 
 return [
     [
+        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_ROUTING,
+
         PluginConfig::PLUGIN_FACTORY => ApplicationRouterPlugin::class,
         PluginConfig::PLUGIN_ARGUMENTS => [
             '$(C)/routing.config.php'
