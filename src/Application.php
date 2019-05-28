@@ -81,16 +81,16 @@ class Application implements ApplicationInterface
 
                 $event = new LaunchEvent();
                 $event->setApplication($this);
-                $eventManager->trigger( SKY_EVENT_LAUNCH_APPLICATION, $event );
+                $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL,  SKY_EVENT_LAUNCH_APPLICATION, $event );
 
-                if(!$event->getApplication())
+                if($event->isPropagationStopped())
                     goto finalize;
 
-                // Store the events app as running application
-                $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
+                $SERVICES->set("application", self::$runningApplication = $this);
 
-                $SERVICES->set("application", $this);
-                $SERVICES->set("request", method_exists($routeEvent, 'getRequest') && ($r = $routeEvent->getRequest()) ? $r : Request::createFromGlobals());
+                $routeEvent = $event->getApplication()->getRouteEvent();
+
+                $SERVICES->set("request", $request = method_exists($routeEvent, 'getRequest') && ($r = $routeEvent->getRequest()) ? $r : Request::createFromGlobals());
 
                 if(!$eventManager->triggerSection( PluginConfig::EVENT_SECTION_ROUTING, SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
                     $e = new UnresolvedRouteException("Could not resolve route", 404);
@@ -111,7 +111,7 @@ class Application implements ApplicationInterface
                 }
 
                 $renderEvent = new RenderResponseEvent(
-                    ($routeEvent instanceof HTTPRequestRouteEvent) ? $routeEvent->getRequest() : Request::createFromGlobals(),
+                    $request,
                     $actionEvent->getActionController()
                 );
                 $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);

@@ -32,24 +32,34 @@
  *
  */
 
-use Skyline\Application\Plugin\ApplicationRouterPlugin;
-use Skyline\Application\Plugin\DirectActionControllerPlugin;
-use Skyline\Kernel\Config\PluginConfig;
+namespace Skyline\Application\Plugin;
 
-return [
-    [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_ROUTING,
 
-        PluginConfig::PLUGIN_FACTORY => ApplicationRouterPlugin::class,
-        PluginConfig::PLUGIN_ARGUMENTS => [
-            '$(C)/routing.config.php'
-        ]
-    ],
-    [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
+use Skyline\Application\Controller\ActionControllerInterface;
+use Skyline\Application\Event\ActionControllerEvent;
+use Skyline\Kernel\Config\MainKernelConfig;
+use TASoft\DI\DependencyManager;
+use TASoft\Service\ServiceManager;
 
-        PluginConfig::PLUGIN_CLASS => DirectActionControllerPlugin::class,
-        PluginConfig::PLUGIN_METHOD => 'makeActionController',
-        PluginConfig::PLUGIN_PRIORITY => 100
-    ]
-];
+class DirectActionControllerPlugin
+{
+    public function makeActionController(string $eventName, ActionControllerEvent $event)
+    {
+        $actionControllerClass = $event->getActionDescription()->getActionControllerClass();
+        if(class_exists($actionControllerClass)) {
+            /** @var ServiceManager $SERVICES */
+            global $SERVICES;
+            if($SERVICES instanceof ServiceManager) {
+                /** @var DependencyManager $dm */
+                $dm = $SERVICES->get(MainKernelConfig::SERVICE_DEPENDENCY_MANAGER);
+                if($dm instanceof DependencyManager) {
+                    $controller = $dm->call($actionControllerClass);
+                    if($controller instanceof ActionControllerInterface) {
+                        $event->setActionController($controller);
+                        $event->stopPropagation();
+                    }
+                }
+            }
+        }
+    }
+}
