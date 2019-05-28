@@ -32,9 +32,10 @@
  *
  */
 
-namespace Skyline\Kernel\Exception;
+namespace Skyline\Application\Exception;
 
 
+use Skyline\Kernel\Exception\SkylineKernelDetailedException;
 use Throwable;
 
 class ApplicationException extends SkylineKernelDetailedException

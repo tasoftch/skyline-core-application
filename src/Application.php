@@ -21,25 +21,25 @@
  * SOFTWARE.
  */
 
-namespace Skyline\Kernel;
+namespace Skyline\Application;
 
 
+use Skyline\Application\Event\ActionControllerEvent;
+use Skyline\Application\Event\LaunchEvent;
+use Skyline\Application\Event\RenderResponseEvent;
+use Skyline\Application\Exception\ApplicationException;
+use Skyline\Application\Exception\RenderResponseException;
+use Skyline\Application\Exception\UnresolvedActionDescriptionException;
+use Skyline\Application\Exception\UnresolvedRouteException;
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Config\PluginConfig;
-use Skyline\Kernel\Event\ActionControllerEvent;
-use Skyline\Kernel\Event\LaunchEvent;
-use Skyline\Kernel\Event\RenderResponseEvent;
-use Skyline\Kernel\Exception\ApplicationException;
-use Skyline\Kernel\Exception\RenderResponseException;
-use Skyline\Kernel\Exception\UnresolvedActionDescriptionException;
-use Skyline\Kernel\Exception\UnresolvedRouteException;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use Skyline\Router\Event\HTTPRequestRouteEvent;
 use Skyline\Router\Event\RouteEventInterface;
 use Symfony\Component\HttpFoundation\Request;
-use TASoft\EventManager\EventManager;
 use TASoft\EventManager\SectionEventManager;
 use TASoft\Service\ServiceManager;
+use Throwable;
 
 class Application implements ApplicationInterface
 {
@@ -89,7 +89,7 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
-                $actionEvent = new ActionControllerEvent($actionDescription ?? $routeEvent->getActionDescription());
+                $actionEvent = new ActionControllerEvent($actionDescription = $actionDescription ?? $routeEvent->getActionDescription());
                 $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL, SKY_EVENT_ACTION_CONTROLLER, $actionEvent);
 
                 if(!$actionEvent->getActionController()) {
@@ -117,12 +117,13 @@ class Application implements ApplicationInterface
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
                 throw $e;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
         }
 
         finalize:
         // Always trigger the tear down event.
-        $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
+        if(isset($eventManager))
+            $eventManager->trigger( SKY_EVENT_TEAR_DOWN );
         if(isset($exception))
             throw $exception;
     }

@@ -32,10 +32,10 @@
  *
  */
 
-namespace Skyline\Kernel\Event;
+namespace Skyline\Application\Event;
 
 
-use Skyline\Kernel\Controller\ActionControllerInterface;
+use Skyline\Application\Controller\ActionControllerInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use TASoft\EventManager\Event\Event;
 

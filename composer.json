@@ -10,7 +10,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Skyline\\Kernel\\" : "src"
+      "Skyline\\Application\\" : "src"
     },
     "files": [
       "src/Constants.php"

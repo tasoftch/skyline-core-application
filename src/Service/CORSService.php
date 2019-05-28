@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Kernel\Service;
+namespace Skyline\Application\Service;
 
 
 use Symfony\Component\HttpFoundation\Request;

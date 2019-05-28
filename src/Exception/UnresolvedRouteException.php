@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Kernel\Exception;
+namespace Skyline\Application\Exception;
 
 
 use Skyline\Router\Event\RouteEventInterface;

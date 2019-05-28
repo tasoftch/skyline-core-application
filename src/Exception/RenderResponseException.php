@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Kernel\Exception;
+namespace Skyline\Application\Exception;
 
 
 class RenderResponseException extends ApplicationException

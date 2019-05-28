@@ -32,20 +32,36 @@
  *
  */
 
-namespace Skyline\Kernel\Controller;
+namespace Skyline\Application\Controller;
 
 
+use Skyline\Kernel\ExposeClassInterface;
+use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
-use Symfony\Component\HttpFoundation\Response;
+use TASoft\Service\ServiceForwarderTrait;
+use Throwable;
 
-class AbstractActionController implements ActionControllerInterface
+class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
 {
+    use ServiceForwarderTrait;
 
-
-    public function performAction(ActionDescriptionInterface $actionDescription): ?Response
+    public static function getPurposes(): array
     {
-
-        return NULL;
+        return [
+            "actionController"
+        ];
     }
 
+    public function performAction(ActionDescriptionInterface $actionDescription): ?RenderInfoInterface
+    {
+
+    }
+
+    protected function render(string $mainTemplateName, array $subTemplates = [], $model = NULL): RenderInfoInterface {
+
+    }
+
+    protected function getErrorRenderInfo(Throwable $exception): ?RenderInfoInterface {
+        return NULL;
+    }
 }

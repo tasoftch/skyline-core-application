@@ -34,7 +34,7 @@
 
 // Event is triggered right at begin of the application launch.
 // An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Kernel\Event\LaunchEvent;
+use Skyline\Application\Event\LaunchEvent;
 
 /**
  * Event is triggered right at begin of the application launch.

@@ -32,10 +32,10 @@
  *
  */
 
-namespace Skyline\Kernel\Event;
+namespace Skyline\Application\Event;
 
 
-use Skyline\Kernel\ApplicationInterface;
+use Skyline\Application\ApplicationInterface;
 use TASoft\EventManager\Event\Event;
 
 class LaunchEvent extends Event

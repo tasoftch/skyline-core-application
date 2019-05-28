@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Kernel;
+namespace Skyline\Application;
 
 use Skyline\Router\Event\RouteEventInterface;
 

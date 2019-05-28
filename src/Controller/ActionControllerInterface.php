@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Kernel\Controller;
+namespace Skyline\Application\Controller;
 
 
 use Skyline\Render\Info\RenderInfoInterface;
