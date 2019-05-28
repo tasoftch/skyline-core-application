@@ -38,6 +38,8 @@ use Skyline\Router\Description\ActionDescriptionInterface;
 use Skyline\Router\Event\HTTPRequestRouteEvent;
 use Skyline\Router\Event\RouteEventInterface;
 use Symfony\Component\HttpFoundation\Request;
+use TASoft\DI\DependencyManager;
+use TASoft\DI\Injector\CallbackInjector;
 use TASoft\EventManager\SectionEventManager;
 use TASoft\Service\ServiceManager;
 use Throwable;
@@ -86,13 +88,19 @@ class Application implements ApplicationInterface
 
                 // Store the events app as running application
                 $routeEvent = (self::$runningApplication = $event->getApplication())->getRouteEvent();
+
+                $SERVICES->set("application", $this);
+                $SERVICES->set("request", method_exists($routeEvent, 'getRequest') && ($r = $routeEvent->getRequest()) ? $r : Request::createFromGlobals());
+
                 if(!$eventManager->triggerSection( PluginConfig::EVENT_SECTION_ROUTING, SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
                     $e = new UnresolvedRouteException("Could not resolve route", 404);
                     $e->setRouteEvent($routeEvent);
                     throw $e;
                 }
 
-                $actionEvent = new ActionControllerEvent($actionDescription = $actionDescription ?? $routeEvent->getActionDescription());
+                $SERVICES->set("actionDescription", $actionDescription = $actionDescription ?? $routeEvent->getActionDescription());
+
+                $actionEvent = new ActionControllerEvent($actionDescription);
                 $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL, SKY_EVENT_ACTION_CONTROLLER, $actionEvent);
 
                 if(!$actionEvent->getActionController()) {
