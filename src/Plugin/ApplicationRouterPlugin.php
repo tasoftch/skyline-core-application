@@ -37,6 +37,18 @@ namespace Skyline\Application\Plugin;
 
 use Skyline\Kernel\Config\PluginFactoryInterface;
 use Skyline\Kernel\Exception\SkylineKernelDetailedException;
+use Skyline\Render\Router\Assigner\ControllerWithRenderAssigner;
+use Skyline\Router\HTTP\LiteralContentTypeRouter;
+use Skyline\Router\HTTP\LiteralHOSTRouter;
+use Skyline\Router\HTTP\LiteralURIRouter;
+use Skyline\Router\HTTP\RegexContentTypeRouter;
+use Skyline\Router\HTTP\RegexHOSTRouter;
+use Skyline\Router\HTTP\RegexURIRouter;
+use Skyline\Router\PartialAssigner\ControllerAndMethodNameAssigner;
+use Skyline\Router\PartialAssigner\ControllerOnlyAssigner;
+use Skyline\Router\PartialAssigner\PartialAssignerInterface;
+use Skyline\Router\PartialAssigner\PriorityAssigner;
+use Skyline\Router\RouterInterface;
 use TASoft\EventManager\EventManagerInterface;
 
 /**
@@ -98,5 +110,141 @@ class ApplicationRouterPlugin implements PluginFactoryInterface
             $e->setDetails("Routing table %s not found", basename($this->getRoutingTableFilename()));
             throw $e;
         }
+
+        foreach($table as $key => $contents) {
+            $priority = 100;
+
+            $router = $this->getRouterForSection($key, $contents, $priority);
+            if($router) {
+                $eventManager->addListener(SKY_EVENT_ROUTE, [$router, 'routeEvent'], $priority);
+            } else
+                trigger_error("Could not instantiate router for $key", E_USER_WARNING);
+        }
+    }
+
+    /**
+     * This method decides which router kind is used for the sections.
+     *
+     * @param string $section
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     *
+     * @see ApplicationRouterPlugin::*_ROUTE constants for sections
+     */
+    protected function getRouterForSection(string $section, array $contents, int &$priority): ?RouterInterface {
+        switch ($section) {
+            case static::URI_ROUTE: return $this->getRouterForURI($contents, $priority);
+            case static::HOST_ROUTE: return $this->getRouterForHOST($contents, $priority);
+            case static::CONTENT_TYPE_ROUTE: return $this->getRouterForContentType($contents, $priority);
+            case static::REGEX_URI_ROUTE: return $this->getRouterForRegexURI($contents, $priority);
+            case static::REGEX_HOST_ROUTE: return $this->getRouterForRegexHOST($contents, $priority);
+            case static::REGEX_CONTENT_TYPE_ROUTE: return $this->getRouterForRegexContentType($contents, $priority);
+            default: return $this->getRouterForUnknownSection($section, $contents, $priority);
+        }
+    }
+
+    protected function getAssignerForSection(string $section): PartialAssignerInterface {
+        $assigner = new PriorityAssigner();
+
+        $assigner->addAssigner(new ControllerWithRenderAssigner(), 10);
+        $assigner->addAssigner(new ControllerAndMethodNameAssigner(), 100);
+        $assigner->addAssigner(new ControllerOnlyAssigner(), 1000);
+
+        return $assigner;
+    }
+
+    /**
+     * Create router for section URI_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForURI(array $contents, int &$priority): ?RouterInterface {
+        $router = new LiteralURIRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::URI_ROUTE) );
+        return $router;
+    }
+
+    /**
+     * Create router for section HOST_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForHOST(array $contents, int &$priority): ?RouterInterface {
+        $router = new LiteralHOSTRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::HOST_ROUTE) );
+        $priority = 90;
+        return $router;
+    }
+
+    /**
+     * Create router for section CONTENT_TYPE_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForContentType(array $contents, int &$priority): ?RouterInterface {
+        $router = new LiteralContentTypeRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::CONTENT_TYPE_ROUTE) );
+        $priority = 80;
+        return $router;
+    }
+
+    /**
+     * Create router for section REGEX_URI_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForRegexURI(array $contents, int &$priority): ?RouterInterface {
+        $router = new RegexURIRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::REGEX_URI_ROUTE) );
+        $priority = 1000;
+        return $router;
+    }
+
+    /**
+     * Create router for section REGEX_HOST_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForRegexHOST(array $contents, int &$priority): ?RouterInterface {
+        $router = new RegexHOSTRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::REGEX_HOST_ROUTE) );
+        $priority = 900;
+        return $router;
+    }
+
+    /**
+     * Create router for section REGEX_CONTENT_TYPE_ROUTE.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForRegexContentType(array $contents, int &$priority): ?RouterInterface {
+        $router = new RegexContentTypeRouter($contents);
+        $router->setAssigner( $this->getAssignerForSection(static::REGEX_CONTENT_TYPE_ROUTE) );
+        $priority = 800;
+        return $router;
+    }
+
+    /**
+     * Create router for any section this factory does not know.
+     *
+     * @param array $contents
+     * @param int $priority
+     * @return RouterInterface|null
+     */
+    protected function getRouterForUnknownSection(string $section, array $contents, int &$priority): ?RouterInterface {
+        return NULL;
     }
 }
