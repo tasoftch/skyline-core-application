@@ -47,6 +47,7 @@ return [
     ],
     [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
+        PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_ACTION_CONTROLLER,
 
         PluginConfig::PLUGIN_CLASS => DirectActionControllerPlugin::class,
         PluginConfig::PLUGIN_METHOD => 'makeActionController',
