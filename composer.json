@@ -23,7 +23,7 @@
     "skyline/kernel": "dev-master",
     "skyline/router": "dev-master",
     "skyline/render": "dev-master",
-    "symfony/http-foundation": "^4.0"
+    "symfony/http-foundation": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^6",
