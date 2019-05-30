@@ -37,7 +37,7 @@ namespace Skyline\Application\Controller;
 
 use Skyline\Render\Info\RenderInfoInterface;
 
-interface CustomRenderInformationActionControllerInterface
+interface CustomRenderInformationInterface
 {
     /**
      * If your action controller needs a custom render info, implement this interface

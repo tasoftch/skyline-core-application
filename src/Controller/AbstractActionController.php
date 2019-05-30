@@ -96,6 +96,14 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         SkylineServiceManager::getDependencyManager()->call([$this, $method]);
     }
 
+    /**
+     * @return RenderInfoInterface
+     */
+    public function getRenderInfo(): RenderInfoInterface
+    {
+        return $this->renderInfo;
+    }
+
     // Methods to call inside performing actions
 
     /**
@@ -121,5 +129,14 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         $e->setActionController($this);
         $e->setDetails($message, ...$arguments);
         throw $e;
+    }
+
+    /**
+     * Tells the render process to choose a preferred render if possible.
+     *
+     * @param string $preferredRenderName
+     */
+    protected function preferRender(string $preferredRenderName) {
+        $this->renderInfo->set( RenderInfoInterface::INFO_PREFERRED_RENDER, $preferredRenderName);
     }
 }
