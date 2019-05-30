@@ -24,6 +24,7 @@
 namespace Skyline\Application;
 
 
+use Skyline\Application\Controller\ErrorActionControllerInterface;
 use Skyline\Application\Event\ActionControllerEvent;
 use Skyline\Application\Event\LaunchEvent;
 use Skyline\Application\Event\PerformActionEvent;
@@ -102,6 +103,8 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
+                repeatAction:
+
                 $SERVICES->set("actionDescription", $actionDescription = $actionDescription ?? $routeEvent->getActionDescription());
 
                 $actionEvent = new ActionControllerEvent($actionDescription);
@@ -148,6 +151,20 @@ class Application implements ApplicationInterface
                 throw $e;
             }
         } catch (Throwable $exception) {
+            if(isset($actionEvent) && ($controller = $actionEvent->getActionController()) && $controller instanceof ErrorActionControllerInterface) {
+                $actionDescription = $controller->getActionDescriptionForError($exception, $actionEvent->getActionDescription());
+                if($actionDescription && !isset($actionControllerRepeatProtection)) {
+                    $actionControllerRepeatProtection = 1;
+                    goto repeatAction;
+                }
+            }
+
+            if($actionDescription = $this->getActionDescriptionForError($exception, $actionEvent->getActionDescription())) {
+                if(!isset($actionApplicationRepeatProtection)) {
+                    $actionApplicationRepeatProtection = 1;
+                    goto repeatAction;
+                }
+            }
         }
 
         finalize:
@@ -159,6 +176,10 @@ class Application implements ApplicationInterface
     }
 
     protected function getRouteFailureActionDescription(RouteEventInterface $event): ?ActionDescriptionInterface {
+        return NULL;
+    }
+
+    protected function getActionDescriptionForError(Throwable $throwable, ActionDescriptionInterface $originalAction): ?ActionDescriptionInterface {
         return NULL;
     }
 }
