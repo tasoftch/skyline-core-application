@@ -32,43 +32,29 @@
  *
  */
 
-// Event is triggered right at begin of the application launch.
-// An event of type LaunchEvent is triggered. The application set by this event is the running application.
-use Skyline\Application\Event\LaunchEvent;
+namespace Skyline\Application\Exception;
 
-/**
- * Event is triggered right at begin of the application launch.
- * An event of type LaunchEvent is triggered. The application set by this event is the running application.
- * @see LaunchEvent::getApplication()
- * @see LaunchEvent::setApplication()
- */
-define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
 
-/**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
+use Skyline\Application\Controller\ActionControllerInterface;
 
-/**
- * The route event is triggered after launching the application.
- */
-define("SKY_EVENT_ROUTE", "skyline.route");
+class UnresolvedActionException extends UnresolvedActionDescriptionException
+{
+    /** @var ActionControllerInterface */
+    private $actionController;
 
-/**
- * If the application  could route to an action description,
- * this event is fired to instantiate an action controller instance.
- */
-define("SKY_EVENT_ACTION_CONTROLLER", 'skyline.action.create');
+    /**
+     * @return ActionControllerInterface
+     */
+    public function getActionController(): ActionControllerInterface
+    {
+        return $this->actionController;
+    }
 
-/**
- * This event is fired immediately after the action controller could be loaded.
- * The event should handle everything needed to transform a request into either a response or template(s) and data model(s).
- */
-define("SKY_EVENT_PERFORM_ACTION", "skyline.action.perform");
-
-/**
- * So finally the render event is fired to perform the action and render a response.
- */
-define("SKY_EVENT_RENDER_RESPONSE", "skyline.render");
+    /**
+     * @param ActionControllerInterface $actionController
+     */
+    public function setActionController(ActionControllerInterface $actionController): void
+    {
+        $this->actionController = $actionController;
+    }
+}

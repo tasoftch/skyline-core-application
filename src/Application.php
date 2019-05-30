@@ -26,10 +26,12 @@ namespace Skyline\Application;
 
 use Skyline\Application\Event\ActionControllerEvent;
 use Skyline\Application\Event\LaunchEvent;
-use Skyline\Application\Event\RenderResponseEvent;
+use Skyline\Application\Event\PerformActionEvent;
+use Skyline\Application\Event\RenderEvent;
 use Skyline\Application\Exception\ApplicationException;
 use Skyline\Application\Exception\RenderResponseException;
 use Skyline\Application\Exception\UnresolvedActionDescriptionException;
+use Skyline\Application\Exception\UnresolvedActionException;
 use Skyline\Application\Exception\UnresolvedRouteException;
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Config\PluginConfig;
@@ -92,7 +94,6 @@ class Application implements ApplicationInterface
                 $routeEvent = $event->getApplication()->getRouteEvent();
 
                 $SERVICES->set("request", $request = method_exists($routeEvent, 'getRequest') && ($r = $routeEvent->getRequest()) ? $r : Request::createFromGlobals());
-                $SERVICES->set("response", $response = new Response());
 
                 if(!$eventManager->triggerSection( PluginConfig::EVENT_SECTION_ROUTING, SKY_EVENT_ROUTE, $routeEvent )->isPropagationStopped() && NULL == ($actionDescription = $this->getRouteFailureActionDescription($routeEvent))) {
                     $e = new UnresolvedRouteException("Could not resolve route", 404);
@@ -112,11 +113,18 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
-                $renderEvent = new RenderResponseEvent(
-                    $request,
-                    $actionEvent->getActionController(),
-                    $response
-                );
+                $performActionEvent = new PerformActionEvent($request, $actionEvent->getActionController(), $actionDescription);
+                $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL, SKY_EVENT_PERFORM_ACTION, $performActionEvent);
+
+                if(!$performActionEvent->getRenderInformation()) {
+                    $e = new UnresolvedActionException("Performing action did not specify any render information", 404);
+                    $e->setActionDescription($actionDescription);
+                    $e->setRouteEvent($routeEvent);
+                    $e->setActionController($actionEvent->getActionController());
+                    throw $e;
+                }
+
+                $renderEvent = new RenderEvent($performActionEvent->getRenderInformation());
                 $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
 
                 if(!$renderEvent->getResponse()) {

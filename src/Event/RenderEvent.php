@@ -36,50 +36,30 @@ namespace Skyline\Application\Event;
 
 
 use Skyline\Application\Controller\ActionControllerInterface;
+use Skyline\Render\Info\RenderInfoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TASoft\EventManager\Event\Event;
 
-class RenderResponseEvent extends Event
+class RenderEvent extends Event
 {
-    /** @var Request */
-    private $request;
-
-    /** @var ActionControllerInterface */
-    private $actionController;
-
     /** @var Response|null */
     private $response;
 
+    /** @var RenderInfoInterface */
+    private $renderInformation;
+
     /**
      * RenderResponseEvent constructor.
-     * @param Request $request
-     * @param ActionControllerInterface $actionController
-     * @param Response $response
+     * @param Response|null $response
+     * @param RenderInfoInterface $renderInformation
      */
-    public function __construct(Request $request, ActionControllerInterface $actionController, Response $response = NULL)
+    public function __construct(RenderInfoInterface $renderInformation, Response $response = NULL)
     {
-        $this->request = $request;
-        $this->actionController = $actionController;
         $this->response = $response;
+        $this->renderInformation = $renderInformation;
     }
 
-
-    /**
-     * @return Request
-     */
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    /**
-     * @return ActionControllerInterface
-     */
-    public function getActionController(): ActionControllerInterface
-    {
-        return $this->actionController;
-    }
 
     /**
      * @return Response|null
@@ -95,5 +75,13 @@ class RenderResponseEvent extends Event
     public function setResponse(?Response $response): void
     {
         $this->response = $response;
+    }
+
+    /**
+     * @return RenderInfoInterface
+     */
+    public function getRenderInformation(): RenderInfoInterface
+    {
+        return $this->renderInformation;
     }
 }
