@@ -32,6 +32,7 @@
  *
  */
 
+use Skyline\Application\Plugin\ActionController\PerformActionPlugin;
 use Skyline\Application\Plugin\Router\ApplicationRouterPlugin;
 use Skyline\Application\Plugin\ActionController\ActionControllerCreationPlugin;
 use Skyline\Application\Plugin\Render\RenderResponsePlugin;
@@ -56,9 +57,15 @@ return [
         PluginConfig::PLUGIN_PRIORITY => 100
     ],
     [
-        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
-        PluginConfig::PLUGIN_DESIRED_EVENT_MANAGER => SubscribableEventManager::class,
+        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
+        PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_PERFORM_ACTION,
 
+        PluginConfig::PLUGIN_CLASS => PerformActionPlugin::class,
+        PluginConfig::PLUGIN_METHOD => 'performAction',
+        PluginConfig::PLUGIN_PRIORITY => 100
+    ],
+    [
+        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
 
         PluginConfig::PLUGIN_CLASS => RenderResponsePlugin::class,

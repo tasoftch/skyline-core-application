@@ -32,27 +32,25 @@
  *
  */
 
-namespace Skyline\Application\Controller;
+namespace Skyline\Application\Plugin\ActionController;
 
 
-use Skyline\Render\Info\RenderInfoInterface;
-use Skyline\Router\Description\ActionDescriptionInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Skyline\Application\Controller\CustomRenderInformationActionControllerInterface;
+use Skyline\Application\Event\PerformActionEvent;
+use Skyline\Render\Info\RenderInfo;
 
-/**
- * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.
- * An action controller is responsible to transform the request into templates and data models that can be rendered after that.
- *
- * @package Skyline\Kernel\Controller
- */
-interface ActionControllerInterface
+class PerformActionPlugin
 {
-    /**
-     * This method is responsible to transform the request into templates and data models that can be rendered
-     *
-     * @param ActionDescriptionInterface $actionDescription
-     * @param RenderInfoInterface $renderInfo
-     * @return void
-     */
-    public function performAction(ActionDescriptionInterface $actionDescription, RenderInfoInterface $renderInfo);
+    public function performAction(string $eventName, PerformActionEvent $event)
+    {
+        $actionController = $event->getActionController();
+
+        if($actionController instanceof CustomRenderInformationActionControllerInterface)
+            $renderInfo = $actionController->getRenderInformation();
+        else
+            $renderInfo = new RenderInfo();
+
+        $actionController->performAction($event->getActionDescription(), $renderInfo);
+        $event->setRenderInformation($renderInfo);
+    }
 }
