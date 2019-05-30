@@ -38,6 +38,7 @@ namespace Skyline\Application\Plugin\Render;
 use Skyline\Application\Event\RenderEvent;
 use Skyline\Application\Exception\_InternalStopRenderProcessException;
 use Skyline\Application\Exception\ActionCancelledException;
+use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Service\CompiledRenderController;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use TASoft\EventManager\EventManagerInterface;
@@ -54,7 +55,10 @@ class RenderResponsePlugin
             $actionDescription = $SERVICES->get("actionDescription");
 
             if(method_exists($actionDescription, 'getRenderName')) {
-                $renderName = $actionDescription->getRenderName();
+                $renderName = $event->getRenderInformation()->get(RenderInfoInterface::INFO_PREFERRED_RENDER);
+                if(!$renderName)
+                    $renderName = $actionDescription->getRenderName();
+
                 $renderController = $SERVICES->get("renderController");
                 if($renderController instanceof CompiledRenderController) {
                     $render = $renderController->getRender($renderName);

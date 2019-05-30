@@ -35,7 +35,7 @@
 namespace Skyline\Application\Plugin\ActionController;
 
 
-use Skyline\Application\Controller\CustomRenderInformationActionControllerInterface;
+use Skyline\Application\Controller\CustomRenderInformationInterface;
 use Skyline\Application\Event\PerformActionEvent;
 use Skyline\Render\Info\RenderInfo;
 
@@ -45,7 +45,7 @@ class PerformActionPlugin
     {
         $actionController = $event->getActionController();
 
-        if($actionController instanceof CustomRenderInformationActionControllerInterface)
+        if($actionController instanceof CustomRenderInformationInterface)
             $renderInfo = $actionController->getRenderInformation();
         else
             $renderInfo = new RenderInfo();
