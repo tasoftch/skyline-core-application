@@ -156,6 +156,7 @@ class Application implements ApplicationInterface
                 if($actionDescription && !isset($actionControllerRepeatProtection)) {
                     $SERVICES->setReplaceExistingServices(true);
                     $actionControllerRepeatProtection = 1;
+                    unset($exception);
                     goto repeatAction;
                 }
             }
@@ -164,6 +165,7 @@ class Application implements ApplicationInterface
                 if(!isset($actionApplicationRepeatProtection)) {
                     $SERVICES->setReplaceExistingServices(true);
                     $actionApplicationRepeatProtection = 1;
+                    unset($exception);
                     goto repeatAction;
                 }
             }
