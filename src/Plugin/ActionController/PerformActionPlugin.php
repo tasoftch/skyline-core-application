@@ -37,6 +37,8 @@ namespace Skyline\Application\Plugin\ActionController;
 
 use Skyline\Application\Controller\CustomRenderInformationInterface;
 use Skyline\Application\Event\PerformActionEvent;
+use Skyline\Application\Exception\_InternalStopRenderProcessException;
+use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Render\Info\RenderInfo;
 
 class PerformActionPlugin
@@ -50,7 +52,16 @@ class PerformActionPlugin
         else
             $renderInfo = new RenderInfo();
 
-        $actionController->performAction($event->getActionDescription(), $renderInfo);
+
+        try {
+            $actionController->performAction($event->getActionDescription(), $renderInfo);
+        } catch (_InternalStopRenderProcessException $exception) {
+            // Can be ignored. Is threw when an action controller directly receives a response to send.
+        } catch (ActionCancelledException $exception) {
+            $exception->setActionDescription( $event->getActionDescription() );
+            throw $exception;
+        }
+
         $event->setRenderInformation($renderInfo);
     }
 }

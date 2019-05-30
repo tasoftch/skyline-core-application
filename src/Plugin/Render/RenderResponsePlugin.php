@@ -63,15 +63,7 @@ class RenderResponsePlugin
                 if($renderController instanceof CompiledRenderController) {
                     $render = $renderController->getRender($renderName);
 
-                    try {
-                        $render->render($event->getRenderInformation());
-                    } catch (_InternalStopRenderProcessException $exception) {
-                        // Can be ignored. Is threw when an action controller directly receives a response to send.
-                    } catch (ActionCancelledException $exception) {
-                        $exception->setActionDescription( $actionDescription );
-                        throw $exception;
-                    }
-
+                    $render->render($event->getRenderInformation());
 
                     $event->setResponse( $render->getResponse() );
                 }
