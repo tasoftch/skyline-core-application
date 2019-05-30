@@ -52,21 +52,23 @@ class RenderResponsePlugin
         /** @var ServiceManager $SERVICES */
         global $SERVICES;
         if($SERVICES instanceof ServiceManager) {
-            $actionDescription = $SERVICES->get("actionDescription");
-            if(method_exists($actionDescription, 'getRenderName')) {
-                $renderName = $actionDescription->getRenderName();
-                $renderController = $SERVICES->get("renderController");
-                if($renderController instanceof CompiledRenderController) {
-                    $render = $renderController->getRender($renderName);
+            if($eventName == SKY_EVENT_RENDER_RESPONSE) {
+                $actionDescription = $SERVICES->get("actionDescription");
+                if(method_exists($actionDescription, 'getRenderName')) {
+                    $renderName = $actionDescription->getRenderName();
+                    $renderController = $SERVICES->get("renderController");
+                    if($renderController instanceof CompiledRenderController) {
+                        $render = $renderController->getRender($renderName);
 
-                    $renderInfo = NULL;
+                        $renderInfo = NULL;
 
-                    $eventManager->trigger(static::EVENT_PRE_ACTION, $event, [&$renderInfo]);
-                    $eventManager->trigger(static::EVENT_MAIN_ACTION, $event, [&$renderInfo]);
-                    $eventManager->trigger(static::EVENT_POST_ACTION, $event, [&$renderInfo]);
+                        $eventManager->trigger(static::EVENT_PRE_ACTION, $event, [&$renderInfo]);
+                        $eventManager->trigger(static::EVENT_MAIN_ACTION, $event, [&$renderInfo]);
+                        $eventManager->trigger(static::EVENT_POST_ACTION, $event, [&$renderInfo]);
 
-                    $render->render($renderInfo);
-                    $event->setResponse( $render->getResponse() );
+                        $render->render($renderInfo);
+                        $event->setResponse( $render->getResponse() );
+                    }
                 }
             }
         }

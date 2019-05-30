@@ -55,11 +55,13 @@ class RenderResponseEvent extends Event
      * RenderResponseEvent constructor.
      * @param Request $request
      * @param ActionControllerInterface $actionController
+     * @param Response $response
      */
-    public function __construct(Request $request, ActionControllerInterface $actionController)
+    public function __construct(Request $request, ActionControllerInterface $actionController, Response $response = NULL)
     {
         $this->request = $request;
         $this->actionController = $actionController;
+        $this->response = $response;
     }
 
 

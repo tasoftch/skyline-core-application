@@ -57,11 +57,5 @@ class AbstractActionController implements ActionControllerInterface, ExposeClass
 
     }
 
-    protected function render(string $mainTemplateName, array $subTemplates = [], $model = NULL): RenderInfoInterface {
 
-    }
-
-    protected function getErrorRenderInfo(Throwable $exception): ?RenderInfoInterface {
-        return NULL;
-    }
 }

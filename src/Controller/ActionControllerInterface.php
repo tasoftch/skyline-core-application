@@ -40,10 +40,17 @@ use Skyline\Router\Description\ActionDescriptionInterface;
 
 /**
  * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.
+ * An action controller is responsible to transform the request into templates and data models that can be rendered after that.
  *
  * @package Skyline\Kernel\Controller
  */
 interface ActionControllerInterface
 {
-    public function performAction(ActionDescriptionInterface $actionDescription): ?RenderInfoInterface;
+    /**
+     * This method is responsible to transform the request into templates and data models that can be rendered
+     *
+     * @param ActionDescriptionInterface $actionDescription
+     * @return void
+     */
+    public function performAction(ActionDescriptionInterface $actionDescription);
 }
