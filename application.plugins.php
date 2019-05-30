@@ -36,6 +36,7 @@ use Skyline\Application\Plugin\ApplicationRouterPlugin;
 use Skyline\Application\Plugin\DirectActionControllerPlugin;
 use Skyline\Application\Plugin\RenderResponsePlugin;
 use Skyline\Kernel\Config\PluginConfig;
+use TASoft\EventManager\SubscribableEventManager;
 
 return [
     [
@@ -56,6 +57,8 @@ return [
     ],
     [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
+        PluginConfig::PLUGIN_DESIRED_EVENT_MANAGER => SubscribableEventManager::class,
+
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
 
         PluginConfig::PLUGIN_CLASS => RenderResponsePlugin::class,
