@@ -154,6 +154,7 @@ class Application implements ApplicationInterface
             if(isset($actionEvent) && ($controller = $actionEvent->getActionController()) && $controller instanceof ErrorActionControllerInterface) {
                 $actionDescription = $controller->getActionDescriptionForError($exception, $actionEvent->getActionDescription());
                 if($actionDescription && !isset($actionControllerRepeatProtection)) {
+                    $SERVICES->setReplaceExistingServices(true);
                     $actionControllerRepeatProtection = 1;
                     goto repeatAction;
                 }
@@ -161,6 +162,7 @@ class Application implements ApplicationInterface
 
             if($actionDescription = $this->getActionDescriptionForError($exception, $actionEvent->getActionDescription())) {
                 if(!isset($actionApplicationRepeatProtection)) {
+                    $SERVICES->setReplaceExistingServices(true);
                     $actionApplicationRepeatProtection = 1;
                     goto repeatAction;
                 }
