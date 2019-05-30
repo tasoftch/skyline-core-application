@@ -42,6 +42,7 @@ use Skyline\Kernel\Service\SkylineServiceManager;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use TASoft\Service\ServiceForwarderTrait;
 
 abstract class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
@@ -114,6 +115,16 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     protected function renderResponse(Response $response) {
         $this->renderInfo->set( RenderInfoInterface::INFO_RESPONSE, $response );
         throw new _InternalStopRenderProcessException();
+    }
+
+    /**
+     * Calling this to cancel render and initialize a stream response. The streamHandler is called to send data.
+     *
+     * @param callable $streamHandler
+     */
+    protected function renderStream(callable $streamHandler) {
+        $resp = new StreamedResponse($streamHandler);
+        $this->renderResponse($resp);
     }
 
     /**
