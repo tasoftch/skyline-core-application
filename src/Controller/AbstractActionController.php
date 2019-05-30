@@ -151,7 +151,14 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         $this->renderInfo->set( RenderInfoInterface::INFO_PREFERRED_RENDER, $preferredRenderName);
     }
 
+    /**
+     * Marks a template and children to render
+     *
+     * @param $template
+     * @param array $children
+     */
     protected function renderTemplate($template, array $children = []) {
-
+        $this->renderInfo->set( RenderInfoInterface::INFO_TEMPLATE, $template );
+        $this->renderInfo->set( RenderInfoInterface::INFO_SUB_TEMPLATES, $children );
     }
 }
