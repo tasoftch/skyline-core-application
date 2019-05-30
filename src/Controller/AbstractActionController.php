@@ -150,4 +150,8 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     protected function preferRender(string $preferredRenderName) {
         $this->renderInfo->set( RenderInfoInterface::INFO_PREFERRED_RENDER, $preferredRenderName);
     }
+
+    protected function renderTemplate($template, array $children = []) {
+
+    }
 }

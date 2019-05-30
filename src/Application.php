@@ -35,6 +35,7 @@ use Skyline\Application\Exception\UnresolvedActionException;
 use Skyline\Application\Exception\UnresolvedRouteException;
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Config\PluginConfig;
+use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Router\Description\MutableRegexRenderActionDescription;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use Skyline\Router\Event\HTTPRequestRouteEvent;
@@ -124,16 +125,20 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
-                $renderEvent = new RenderEvent($performActionEvent->getRenderInformation());
-                $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
+                if(NULL === $response = $performActionEvent->getRenderInformation()->get( RenderInfoInterface::INFO_RESPONSE )) {
+                    $renderEvent = new RenderEvent($performActionEvent->getRenderInformation());
+                    $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
 
-                if(!$renderEvent->getResponse()) {
-                    $e = new RenderResponseException("Response Render Error", 500);
-                    $e->setDetails("Application can not render response.");
-                    throw $e;
+                    if(!$renderEvent->getResponse()) {
+                        $e = new RenderResponseException("Response Render Error", 500);
+                        $e->setDetails("Application can not render response.");
+                        throw $e;
+                    }
+
+                    $renderEvent->getResponse()->send();
+                } else {
+                    $response->send();
                 }
-
-                $renderEvent->getResponse()->send();
             } else {
                 $e = new ApplicationException("Application Launch Error", 500);
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
