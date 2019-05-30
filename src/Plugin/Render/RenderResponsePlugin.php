@@ -36,6 +36,8 @@ namespace Skyline\Application\Plugin\Render;
 
 
 use Skyline\Application\Event\RenderEvent;
+use Skyline\Application\Exception\_InternalStopRenderProcessException;
+use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Render\Service\CompiledRenderController;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use TASoft\EventManager\EventManagerInterface;
@@ -57,7 +59,16 @@ class RenderResponsePlugin
                 if($renderController instanceof CompiledRenderController) {
                     $render = $renderController->getRender($renderName);
 
-                    $render->render($event->getRenderInformation());
+                    try {
+                        $render->render($event->getRenderInformation());
+                    } catch (_InternalStopRenderProcessException $exception) {
+                        // Can be ignored. Is threw when an action controller directly receives a response to send.
+                    } catch (ActionCancelledException $exception) {
+                        $exception->setActionDescription( $actionDescription );
+                        throw $exception;
+                    }
+
+
                     $event->setResponse( $render->getResponse() );
                 }
             }

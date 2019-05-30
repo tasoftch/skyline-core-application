@@ -35,16 +35,20 @@
 namespace Skyline\Application\Controller;
 
 
+use Skyline\Application\Exception\_InternalStopRenderProcessException;
+use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Kernel\ExposeClassInterface;
+use Skyline\Kernel\Service\SkylineServiceManager;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
-use TASoft\EventManager\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use TASoft\Service\ServiceForwarderTrait;
-use Throwable;
 
 abstract class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
 {
     use ServiceForwarderTrait;
+    /** @var RenderInfoInterface */
+    private $renderInfo;
 
     /**
      * @inheritDoc
@@ -54,5 +58,68 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         return [
             "actionController"
         ];
+    }
+
+    /**
+     * The action controller asks a final time about the definitive method name to perform the action.
+     *
+     * @param ActionDescriptionInterface $actionDescription
+     * @return string
+     */
+    protected function getActionMethodName(ActionDescriptionInterface $actionDescription): string {
+        return $actionDescription->getMethodName();
+    }
+
+    /**
+     * Return true to register the action controller as a service
+     *
+     * @return bool
+     */
+    protected function shouldRegisterService(): bool {
+        return true;
+    }
+
+    /**
+     * Forwards any action to a specified method name.
+     *
+     * @param ActionDescriptionInterface $actionDescription
+     * @param RenderInfoInterface $renderInfo
+     */
+    public function performAction(ActionDescriptionInterface $actionDescription, RenderInfoInterface $renderInfo)
+    {
+        $this->renderInfo = $renderInfo;
+        $method = $this->getActionMethodName($actionDescription);
+
+        if($this->shouldRegisterService())
+            $this->getServiceManager()->set("actionController", $this);
+
+        SkylineServiceManager::getDependencyManager()->call([$this, $method]);
+    }
+
+    // Methods to call inside performing actions
+
+    /**
+     * Calling this method will stop rendering process and send the response to the client.
+     *
+     * @param Response $response
+     */
+    protected function renderResponse(Response $response) {
+        $this->renderInfo->set( RenderInfoInterface::INFO_RESPONSE, $response );
+        throw new _InternalStopRenderProcessException();
+    }
+
+    /**
+     * Cancel an action. You should explain why the action was cancelled.
+     *
+     * @param string $reason
+     * @param string $message
+     * @param int $code
+     * @param mixed ...$arguments
+     */
+    protected function cancelAction(string $reason, string $message = "", int $code = 500, ...$arguments) {
+        $e = new ActionCancelledException($reason, $code);
+        $e->setActionController($this);
+        $e->setDetails($message, ...$arguments);
+        throw $e;
     }
 }
