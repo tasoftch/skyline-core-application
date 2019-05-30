@@ -38,24 +38,21 @@ namespace Skyline\Application\Controller;
 use Skyline\Kernel\ExposeClassInterface;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
+use TASoft\EventManager\EventSubscriberInterface;
 use TASoft\Service\ServiceForwarderTrait;
 use Throwable;
 
-class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
+abstract class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
 {
     use ServiceForwarderTrait;
 
+    /**
+     * @inheritDoc
+     */
     public static function getPurposes(): array
     {
         return [
             "actionController"
         ];
     }
-
-    public function performAction(ActionDescriptionInterface $actionDescription): ?RenderInfoInterface
-    {
-
-    }
-
-
 }

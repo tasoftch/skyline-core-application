@@ -32,7 +32,7 @@
  *
  */
 
-namespace Skyline\Application\Plugin;
+namespace Skyline\Application\Plugin\Router;
 
 
 use Skyline\Kernel\Config\PluginFactoryInterface;

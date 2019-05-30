@@ -32,9 +32,9 @@
  *
  */
 
-use Skyline\Application\Plugin\ApplicationRouterPlugin;
-use Skyline\Application\Plugin\DirectActionControllerPlugin;
-use Skyline\Application\Plugin\RenderResponsePlugin;
+use Skyline\Application\Plugin\Router\ApplicationRouterPlugin;
+use Skyline\Application\Plugin\ActionController\ActionControllerCreationPlugin;
+use Skyline\Application\Plugin\Render\RenderResponsePlugin;
 use Skyline\Kernel\Config\PluginConfig;
 use TASoft\EventManager\SubscribableEventManager;
 
@@ -51,7 +51,7 @@ return [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_ACTION_CONTROLLER,
 
-        PluginConfig::PLUGIN_CLASS => DirectActionControllerPlugin::class,
+        PluginConfig::PLUGIN_CLASS => ActionControllerCreationPlugin::class,
         PluginConfig::PLUGIN_METHOD => 'makeActionController',
         PluginConfig::PLUGIN_PRIORITY => 100
     ],

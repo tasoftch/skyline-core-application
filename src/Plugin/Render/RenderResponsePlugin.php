@@ -32,32 +32,33 @@
  *
  */
 
-namespace Skyline\Application\Plugin;
+namespace Skyline\Application\Plugin\Render;
 
 
-use Skyline\Application\Controller\ActionControllerInterface;
-use Skyline\Application\Event\ActionControllerEvent;
-use Skyline\Kernel\Config\MainKernelConfig;
-use TASoft\DI\DependencyManager;
+use Skyline\Application\Event\RenderEvent;
+use Skyline\Render\Service\CompiledRenderController;
+use Skyline\Router\Description\ActionDescriptionInterface;
+use TASoft\EventManager\EventManagerInterface;
 use TASoft\Service\ServiceManager;
 
-class DirectActionControllerPlugin
+class RenderResponsePlugin
 {
-    public function makeActionController(string $eventName, ActionControllerEvent $event)
+    public function renderResponse(string $eventName, RenderEvent $event, EventManagerInterface $eventManager, ...$arguments)
     {
-        $actionControllerClass = $event->getActionDescription()->getActionControllerClass();
-        if(class_exists($actionControllerClass)) {
-            /** @var ServiceManager $SERVICES */
-            global $SERVICES;
-            if($SERVICES instanceof ServiceManager) {
-                /** @var DependencyManager $dm */
-                $dm = $SERVICES->get(MainKernelConfig::SERVICE_DEPENDENCY_MANAGER);
-                if($dm instanceof DependencyManager) {
-                    $controller = $dm->call($actionControllerClass);
-                    if($controller instanceof ActionControllerInterface) {
-                        $event->setActionController($controller);
-                        $event->stopPropagation();
-                    }
+        /** @var ServiceManager $SERVICES */
+        global $SERVICES;
+        if($SERVICES instanceof ServiceManager) {
+            /** @var ActionDescriptionInterface $actionDescription */
+            $actionDescription = $SERVICES->get("actionDescription");
+
+            if(method_exists($actionDescription, 'getRenderName')) {
+                $renderName = $actionDescription->getRenderName();
+                $renderController = $SERVICES->get("renderController");
+                if($renderController instanceof CompiledRenderController) {
+                    $render = $renderController->getRender($renderName);
+
+                    $render->render($event->getRenderInformation());
+                    $event->setResponse( $render->getResponse() );
                 }
             }
         }
