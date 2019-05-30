@@ -32,7 +32,7 @@
  *
  */
 
-use Skyline\Application\Plugin\ApplicationRouterPlugin AS ARP;
+use Skyline\Application\Plugin\Router\ApplicationRouterPlugin AS ARP;
 use Skyline\Render\AbstractRender;
 
 return [
