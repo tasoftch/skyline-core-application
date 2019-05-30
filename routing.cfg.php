@@ -37,7 +37,7 @@ use Skyline\Render\AbstractRender;
 
 return [
     ARP::REGEX_CONTENT_TYPE_ROUTE => [
-        "%^text/(plain-utf8|plain|php)$%i" => [
+        "%^.*?/.*?$%i" => [
             ARP::ROUTED_RENDER_KEY => AbstractRender::ATOMIC_TEMPLATE_RENDER
         ]
     ],
