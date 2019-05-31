@@ -151,12 +151,19 @@ class Application implements ApplicationInterface
                 throw $e;
             }
         } catch (Throwable $exception) {
+            $prepateRepetition = function() use (&$exception, $SERVICES) {
+                unset($exception);
+                unset($SERVICES->actionDescription);
+                unset($SERVICES->response);
+                unset($SERVICES->actionController);
+            };
+
             if(isset($actionEvent) && ($controller = $actionEvent->getActionController()) && $controller instanceof ErrorActionControllerInterface) {
                 $actionDescription = $controller->getActionDescriptionForError($exception, $actionEvent->getActionDescription());
                 if($actionDescription && !isset($actionControllerRepeatProtection)) {
                     $SERVICES->setReplaceExistingServices(true);
                     $actionControllerRepeatProtection = 1;
-                    unset($exception);
+                    $prepateRepetition();
                     goto repeatAction;
                 }
             }
@@ -165,7 +172,7 @@ class Application implements ApplicationInterface
                 if(!isset($actionApplicationRepeatProtection)) {
                     $SERVICES->setReplaceExistingServices(true);
                     $actionApplicationRepeatProtection = 1;
-                    unset($exception);
+                    $prepateRepetition();
                     goto repeatAction;
                 }
             }
