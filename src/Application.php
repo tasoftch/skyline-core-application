@@ -43,8 +43,6 @@ use Skyline\Router\Event\HTTPRequestRouteEvent;
 use Skyline\Router\Event\RouteEventInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use TASoft\DI\DependencyManager;
-use TASoft\DI\Injector\CallbackInjector;
 use TASoft\EventManager\SectionEventManager;
 use TASoft\Service\ServiceManager;
 use Throwable;
