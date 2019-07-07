@@ -32,27 +32,31 @@
  *
  */
 
-namespace Skyline\Application\Controller;
+namespace Skyline\Application\Exception;
 
 
-use Skyline\Render\Info\RenderInfoInterface;
-use Skyline\Router\Description\ActionDescriptionInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Skyline\Render\Template\Catalog;
 
-/**
- * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.
- * An action controller is responsible to transform the request into templates and data models that can be rendered after that.
- *
- * @package Skyline\Application
- */
-interface ActionControllerInterface
+class TemplateResolutionException extends RenderResponseException
 {
     /**
-     * This method is responsible to transform the request into templates and data models that can be rendered
-     *
-     * @param ActionDescriptionInterface $actionDescription
-     * @param RenderInfoInterface $renderInfo
-     * @return void
+     * @var string|array|Catalog
      */
-    public function performAction(ActionDescriptionInterface $actionDescription, RenderInfoInterface $renderInfo);
+    private $templateInfo;
+
+    /**
+     * @return array|Catalog|string
+     */
+    public function getTemplateInfo()
+    {
+        return $this->templateInfo;
+    }
+
+    /**
+     * @param array|Catalog|string $templateInfo
+     */
+    public function setTemplateInfo($templateInfo): void
+    {
+        $this->templateInfo = $templateInfo;
+    }
 }

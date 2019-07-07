@@ -36,8 +36,8 @@ use Skyline\Application\Plugin\ActionController\PerformActionPlugin;
 use Skyline\Application\Plugin\Router\ApplicationRouterPlugin;
 use Skyline\Application\Plugin\ActionController\ActionControllerCreationPlugin;
 use Skyline\Application\Plugin\Render\RenderResponsePlugin;
+use Skyline\Application\Plugin\Template\TemplateResolverPlugin;
 use Skyline\Kernel\Config\PluginConfig;
-use TASoft\EventManager\SubscribableEventManager;
 
 return [
     [
@@ -71,5 +71,13 @@ return [
         PluginConfig::PLUGIN_CLASS => RenderResponsePlugin::class,
         PluginConfig::PLUGIN_METHOD => 'renderResponse',
         PluginConfig::PLUGIN_PRIORITY => 100
+    ],
+    [
+        PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
+        PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
+
+        PluginConfig::PLUGIN_CLASS => TemplateResolverPlugin::class,
+        PluginConfig::PLUGIN_METHOD => 'resolveTemplates',
+        PluginConfig::PLUGIN_PRIORITY => 90
     ]
 ];
