@@ -66,13 +66,17 @@ class TemplateResolverPlugin
         }
 
         if($children = $renderInfo->get(RenderInfoInterface::INFO_SUB_TEMPLATES)) {
-            foreach($children as &$child) {
+            foreach($children as $key => &$child) {
                 $ch = $tc->findTemplate($child);
                 if(!$ch) {
                     $notResolvedError($child);
                     $child = NULL;
                 } else {
-                    $child = $ch;
+                    if(!is_string($key) && is_string($child)) {
+                        $children[$key] = $ch;
+                        $child = NULL;
+                    } else
+                        $child = $ch;
                 }
             }
 
