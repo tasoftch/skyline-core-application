@@ -121,9 +121,12 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
      * Calling this to cancel render and initialize a stream response. The streamHandler is called to send data.
      *
      * @param callable $streamHandler
+     * @param int $contentLength
      */
-    protected function renderStream(callable $streamHandler) {
+    protected function renderStream(callable $streamHandler, int $contentLength = 0) {
         $resp = new StreamedResponse($streamHandler);
+        if($contentLength)
+            $resp->headers->set("Content-Length", $contentLength);
         $this->renderResponse($resp);
     }
 
