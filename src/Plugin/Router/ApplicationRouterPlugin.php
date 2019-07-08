@@ -38,6 +38,7 @@ namespace Skyline\Application\Plugin\Router;
 use Skyline\Kernel\Config\PluginFactoryInterface;
 use Skyline\Kernel\Exception\SkylineKernelDetailedException;
 use Skyline\Render\Router\Assigner\ControllerWithRenderAssigner;
+use Skyline\Router\AbstractRouterPlugin;
 use Skyline\Router\HTTP\LiteralContentTypeRouter;
 use Skyline\Router\HTTP\LiteralHOSTRouter;
 use Skyline\Router\HTTP\LiteralURIRouter;
@@ -58,25 +59,14 @@ use TASoft\EventManager\EventManagerInterface;
  *
  * @package Skyline\Application\Plugin
  */
-class ApplicationRouterPlugin implements PluginFactoryInterface
+class ApplicationRouterPlugin extends AbstractRouterPlugin implements PluginFactoryInterface
 {
     /*
      * Each found routing.cfg.php file in packages and routing.config.php in your custom config directory will be compiled.
      * So each file must return an array containing a key route (*_ROUTE constants) which is another array with string keys as pattern and value as array containing keys ROUTED_* to specify the route.
      */
 
-    /** @var string Keys are literal URIs */
-    const URI_ROUTE = "URI";
-    const HOST_ROUTE = 'HOST';
-    const CONTENT_TYPE_ROUTE = "CTYPE";
 
-    const REGEX_URI_ROUTE = "RURI";
-    const REGEX_HOST_ROUTE = 'RHOST';
-    const REGEX_CONTENT_TYPE_ROUTE = "RCTYPE";
-
-    const ROUTED_CONTROLLER_KEY = 'controller';
-    const ROUTED_METHOD_KEY = 'method';
-    const ROUTED_RENDER_KEY = 'render';
 
     /** @var string */
     private $routingTableFilename;
