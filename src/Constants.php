@@ -45,13 +45,6 @@ use Skyline\Application\Event\LaunchEvent;
 define("SKY_EVENT_LAUNCH_APPLICATION", "skyline.app.launch");
 
 /**
- * The tear down event is the very final triggered event to clean up the applications.
- * Independent of workflows, this event IS TRIGGERED!
- * Only exception is uncaught exceptions.
- */
-define("SKY_EVENT_TEAR_DOWN", "skyline.tear-down");
-
-/**
  * The route event is triggered after launching the application.
  */
 define("SKY_EVENT_ROUTE", "skyline.route");
