@@ -40,7 +40,7 @@ use Skyline\Application\Plugin\Template\TemplateResolverPlugin;
 use Skyline\Kernel\Config\PluginConfig;
 
 return [
-    [
+    'routing' => [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_ROUTING,
 
         PluginConfig::PLUGIN_FACTORY => ApplicationRouterPlugin::class,
@@ -48,7 +48,7 @@ return [
             '$(C)/routing.config.php'
         ]
     ],
-    [
+    'controller' => [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_ACTION_CONTROLLER,
 
@@ -56,7 +56,7 @@ return [
         PluginConfig::PLUGIN_METHOD => 'makeActionController',
         PluginConfig::PLUGIN_PRIORITY => 100
     ],
-    [
+    'action' => [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_CONTROL,
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_PERFORM_ACTION,
 
@@ -64,7 +64,7 @@ return [
         PluginConfig::PLUGIN_METHOD => 'performAction',
         PluginConfig::PLUGIN_PRIORITY => 100
     ],
-    [
+    "render" => [
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
 
@@ -72,7 +72,7 @@ return [
         PluginConfig::PLUGIN_METHOD => 'renderResponse',
         PluginConfig::PLUGIN_PRIORITY => 100
     ],
-    [
+    "templates" => [
         PluginConfig::PLUGIN_EVENT_NAME => SKY_EVENT_RENDER_RESPONSE,
         PluginConfig::PLUGIN_EVENT_SECTION => PluginConfig::EVENT_SECTION_RENDER,
 
