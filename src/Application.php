@@ -166,7 +166,7 @@ class Application implements ApplicationInterface
                 }
             }
 
-            if($actionDescription = $this->getActionDescriptionForError($exception, $actionEvent->getActionDescription())) {
+            if($actionDescription = $this->getActionDescriptionForError($exception, isset($actionEvent) ? $actionEvent->getActionDescription() : NULL)) {
                 if(!isset($actionApplicationRepeatProtection)) {
                     $SERVICES->setReplaceExistingServices(true);
                     $actionApplicationRepeatProtection = 1;
@@ -189,7 +189,7 @@ class Application implements ApplicationInterface
         return NULL;
     }
 
-    protected function getActionDescriptionForError(Throwable $throwable, ActionDescriptionInterface $originalAction): ?ActionDescriptionInterface {
+    protected function getActionDescriptionForError(Throwable $throwable, ?ActionDescriptionInterface $originalAction): ?ActionDescriptionInterface {
         return NULL;
     }
 }
