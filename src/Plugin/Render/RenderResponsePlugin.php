@@ -63,6 +63,7 @@ class RenderResponsePlugin
                 if($renderController instanceof CompiledRenderController) {
                     $render = $renderController->getRender($renderName);
                     $render->setResponse( $event->getResponse() );
+                    ServiceManager::generalServiceManager()->set("render", $render);
 
                     $render->render($event->getRenderInformation());
 
