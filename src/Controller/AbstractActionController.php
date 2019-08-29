@@ -40,6 +40,7 @@ use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Kernel\ExposeClassInterface;
 use Skyline\Kernel\Service\SkylineServiceManager;
 use Skyline\Render\Info\RenderInfoInterface;
+use Skyline\Render\Model\ModelInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -163,5 +164,17 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     protected function renderTemplate($template, array $children = []) {
         $this->renderInfo->set( RenderInfoInterface::INFO_TEMPLATE, $template );
         $this->renderInfo->set( RenderInfoInterface::INFO_SUB_TEMPLATES, $children );
+    }
+
+    /**
+     * Declare a data model to use while rendering a template
+     *
+     * @param ModelInterface $dataModel
+     * @param bool $expandModelInScope
+     */
+    protected function renderModel(ModelInterface $dataModel, bool $expandModelInScope = false) {
+        $this->renderInfo->set(RenderInfoInterface::INFO_MODEL, $dataModel);
+        if($expandModelInScope)
+            $this->renderInfo->set(RenderInfoInterface::INFO_MODEL . "-expand", true);
     }
 }
