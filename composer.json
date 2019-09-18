@@ -1,5 +1,6 @@
 {
   "name": "skyline/core-application",
+  "description": "Required package to create any kind of Skyline Applications. It will add all necessary packages to launch the application for any purpose like web application or php server.",
   "minimum-stability": "dev",
   "license": "BSD-3-Clause",
   "authors": [
