@@ -223,7 +223,7 @@ class ApplicationRouterPlugin extends AbstractRouterPlugin implements PluginFact
     protected function getRouterForRegexContentType(array $contents, int &$priority): ?RouterInterface {
         $router = new RegexContentTypeRouter($contents);
         $router->setAssigner( $this->getAssignerForSection(static::REGEX_CONTENT_TYPE_ROUTE) );
-        $priority = 800;
+        $priority = 81;
         return $router;
     }
 
