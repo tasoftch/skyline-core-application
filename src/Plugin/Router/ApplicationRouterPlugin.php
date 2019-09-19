@@ -152,7 +152,7 @@ class ApplicationRouterPlugin extends AbstractRouterPlugin implements PluginFact
      * @return RouterInterface|null
      */
     protected function getRouterForURI(array $contents, int &$priority): ?RouterInterface {
-        $router = new LiteralURIRouter($contents);
+        $router = new LiteralURIRouter($contents, LiteralURIRouter::OPT_IGNORE_FRAGMENT);
         $router->setAssigner( $this->getAssignerForSection(static::URI_ROUTE) );
         return $router;
     }
@@ -165,7 +165,7 @@ class ApplicationRouterPlugin extends AbstractRouterPlugin implements PluginFact
      * @return RouterInterface|null
      */
     protected function getRouterForHOST(array $contents, int &$priority): ?RouterInterface {
-        $router = new LiteralHOSTRouter($contents);
+        $router = new LiteralHOSTRouter($contents, LiteralURIRouter::OPT_IGNORE_FRAGMENT);
         $router->setAssigner( $this->getAssignerForSection(static::HOST_ROUTE) );
         $priority = 90;
         return $router;
