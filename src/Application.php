@@ -139,10 +139,12 @@ class Application implements ApplicationInterface
                         throw $e;
                     }
 
-                    $renderEvent->getResponse()->send();
-                } else {
-                    $resp->send();
+                    $resp = $renderEvent->getResponse();
                 }
+                if(!$resp->isNotModified($request))
+                    $resp->prepare($request);
+
+                $resp->send();
             } else {
                 $e = new ApplicationException("Application Launch Error", 500);
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
