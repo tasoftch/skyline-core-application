@@ -40,7 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class CORSService
 {
     private static $hosts;
-
+    public static $acceptsFromReferer = true;
     /**
      * Registers a host name for your application.
      * The Skyline CMS will use this host lists to determine if a request is authorized to obtain data.
@@ -74,21 +74,10 @@ final class CORSService
      * @return string|null
      */
     public static function getAllowedOriginOf(Request $request, &$withCredentials) {
-        $host = $request->headers->get("HOST");
+        $serverHost = $request->headers->get("HOST");
         $withCredentials = false;
 
-        if($info = static::$hosts[$host] ?? false) {
-            $referer = $request->headers->get("ORIGIN");
-            if(!$referer)
-                $referer = $request->headers->get("REFERER");
-
-            if(!$referer)
-                return NULL;
-
-            $referer = parse_url($referer);
-
-            $host = $referer["host"] ?? "";
-            $scheme = $referer["scheme"] ?? "http";
+        if(($info = static::$hosts[$serverHost] ?? false) && self::getOriginOfRequest($request, $host, $scheme)) {
 
             foreach($info as $pattern => $withC) {
                 if(fnmatch($pattern, $host)) {
@@ -101,6 +90,38 @@ final class CORSService
         return NULL;
     }
 
+    /**
+     * Fetches the origin (or if enabled the referer) header field of a request and creates a valid origin string
+     *
+     * @param Request $request
+     * @param string $host
+     * @param string $scheme
+     * @return string|null
+     */
+    public static function getOriginOfRequest(Request $request, string &$host = NULL, string &$scheme = NULL): ?string {
+        // According to CORS protocol, a cross origin request must declare its origin
+        $origin = $request->headers->get("ORIGIN");
+        if(!$origin && self::$acceptsFromReferer) {
+            // Skyline also accepts from referer
+            $origin = $request->headers->get("REFERER");
+        }
+
+        if(!$origin)
+            return NULL;
+
+        $origin = parse_url($origin);
+
+        $host = $origin["host"] ?? NULL;
+        $scheme = $origin["scheme"] ?? NULL;
+        return ($host && $scheme) ? "$scheme://$host" : NULL;
+    }
+
+    /**
+     * Checks, if a given host is registered
+     *
+     * @param $hostName
+     * @return bool
+     */
     public static function isRegistered($hostName) {
         return isset(self::$hosts[$hostName]);
     }
