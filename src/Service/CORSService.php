@@ -74,7 +74,7 @@ final class CORSService
      * @return string|null
      */
     public static function getAllowedOriginOf(Request $request, &$withCredentials) {
-        $serverHost = $request->headers->get("HOST");
+        self::getHostOfRequest($request, $serverHost);
         $withCredentials = false;
 
         if(($info = static::$hosts[$serverHost] ?? false) && self::getOriginOfRequest($request, $host, $scheme)) {
@@ -113,6 +113,22 @@ final class CORSService
 
         $host = $origin["host"] ?? NULL;
         $scheme = $origin["scheme"] ?? NULL;
+        return ($host && $scheme) ? "$scheme://$host" : NULL;
+    }
+
+    /**
+     * Fetches the host of a given request
+     *
+     * @param Request $request
+     * @param string|NULL $host
+     * @param string|NULL $scheme
+     * @return string
+     */
+    public static function getHostOfRequest(Request $request, string &$host = NULL, string &$scheme = NULL): string {
+        $serverHost = $request->headers->get("HOST");
+        $serverHost = parse_url($serverHost);
+        $host = $serverHost["host"] ?? NULL;
+        $scheme = $serverHost["scheme"] ?? $request->headers->get("SERVER_PROTOCOL");
         return ($host && $scheme) ? "$scheme://$host" : NULL;
     }
 
