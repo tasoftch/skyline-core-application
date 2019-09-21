@@ -35,8 +35,11 @@
 namespace Skyline\Application\Controller;
 
 
+use Skyline\Application\Event\RenderEvent;
 use Skyline\Application\Exception\_InternalStopRenderProcessException;
 use Skyline\Application\Exception\ActionCancelledException;
+use Skyline\Application\Exception\RenderResponseException;
+use Skyline\Kernel\Config\PluginConfig;
 use Skyline\Kernel\ExposeClassInterface;
 use Skyline\Kernel\Service\SkylineServiceManager;
 use Skyline\Render\Info\RenderInfoInterface;
@@ -46,6 +49,7 @@ use Skyline\Router\Description\ActionDescriptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TASoft\Service\ServiceForwarderTrait;
+use TASoft\Service\ServiceManager;
 
 abstract class AbstractActionController implements ActionControllerInterface, ExposeClassInterface
 {
@@ -126,7 +130,30 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
      * @param int $contentLength
      */
     protected function renderStream(callable $streamHandler, int $contentLength = 0) {
-        $resp = new StreamedResponse($streamHandler);
+        $resp = new StreamedResponse(function() use ($streamHandler) {
+            $this->renderInfo->set( RenderInfoInterface::INFO_TEMPLATE, NULL );
+            $this->renderInfo->set( RenderInfoInterface::INFO_SUB_TEMPLATES, NULL);
+            $this->renderInfo->set( RenderInfoInterface::INFO_RESPONSE, NULL);
+
+            call_user_func($streamHandler);
+
+            if(NULL === $resp = $this->renderInfo->get( RenderInfoInterface::INFO_RESPONSE )) {
+                ServiceManager::generalServiceManager()->set("response", $response = new Response());
+
+                $renderEvent = new RenderEvent($this->renderInfo, $response);
+                SkylineServiceManager::getEventManager()->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
+
+                if(!$renderEvent->getResponse()) {
+                    $e = new RenderResponseException("Response Render Error", 500);
+                    $e->setDetails("Application can not render response.");
+                    throw $e;
+                }
+
+                $resp = $renderEvent->getResponse();
+            }
+
+            $resp->sendContent();
+        });
         if($contentLength)
             $resp->headers->set("Content-Length", $contentLength);
         $this->renderResponse($resp);
