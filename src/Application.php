@@ -129,6 +129,11 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
+                $response->prepare( $request );
+                $response->isNotModified( $request );
+
+                $response->sendHeaders();
+
                 if(NULL === $resp = $performActionEvent->getRenderInformation()->get( RenderInfoInterface::INFO_RESPONSE )) {
                     $renderEvent = new RenderEvent($performActionEvent->getRenderInformation(), $response);
                     $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
@@ -141,11 +146,8 @@ class Application implements ApplicationInterface
 
                     $resp = $renderEvent->getResponse();
                 }
-                $resp->prepare( $request );
-                if($resp->isNotModified( $request ))
-                    $resp->sendHeaders();
-                else
-                    $resp->send();
+
+                $resp->send();
             } else {
                 $e = new ApplicationException("Application Launch Error", 500);
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
