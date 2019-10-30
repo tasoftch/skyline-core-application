@@ -36,6 +36,7 @@ use Skyline\Application\Exception\UnresolvedActionException;
 use Skyline\Application\Exception\UnresolvedRouteException;
 use Skyline\Kernel\Config\MainKernelConfig;
 use Skyline\Kernel\Config\PluginConfig;
+use Skyline\Kernel\Loader\RequestLoader;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Router\Description\MutableRegexRenderActionDescription;
 use Skyline\Router\Description\ActionDescriptionInterface;
@@ -62,7 +63,11 @@ class Application implements ApplicationInterface
 
     public function getRouteEvent(): RouteEventInterface
     {
-        $request = Request::createFromGlobals();
+        if(class_exists( RequestLoader::class ))
+            $request = RequestLoader::$request;
+        else
+            $request = Request::createFromGlobals();
+
         $event = new HTTPRequestRouteEvent($request);
         $event->setActionDescription(new MutableRegexRenderActionDescription());
         return $event;
