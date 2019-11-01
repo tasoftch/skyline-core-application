@@ -34,10 +34,7 @@
 
 namespace Skyline\Application\Event;
 
-
-use Skyline\Application\Controller\ActionControllerInterface;
 use Skyline\Render\Info\RenderInfoInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TASoft\EventManager\Event\Event;
 

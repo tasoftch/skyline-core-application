@@ -37,7 +37,6 @@ namespace Skyline\Application\Controller;
 
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Any class implementing this interface may be used as an action controller that may be routed by routers as controller class name.

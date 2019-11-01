@@ -36,8 +36,6 @@ namespace Skyline\Application\Plugin\Render;
 
 
 use Skyline\Application\Event\RenderEvent;
-use Skyline\Application\Exception\_InternalStopRenderProcessException;
-use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Service\CompiledRenderController;
 use Skyline\Router\Description\ActionDescriptionInterface;
