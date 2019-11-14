@@ -40,8 +40,6 @@ use Skyline\Application\Event\PerformActionEvent;
 use Skyline\Application\Exception\_InternalStopRenderProcessException;
 use Skyline\Application\Exception\ActionCancelledException;
 use Skyline\Render\Info\RenderInfo;
-use Skyline\Render\Info\RenderInfoInterface;
-use TASoft\Service\ServiceManager;
 
 class PerformActionPlugin
 {
@@ -53,7 +51,6 @@ class PerformActionPlugin
             $renderInfo = $actionController->getRenderInformation();
         else {
             $renderInfo = new RenderInfo();
-            $renderInfo->set( RenderInfoInterface::INFO_RESPONSE, ServiceManager::generalServiceManager()->get("response") );
         }
 
 
