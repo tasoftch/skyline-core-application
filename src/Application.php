@@ -135,24 +135,26 @@ class Application implements ApplicationInterface
                 }
 
                 $response->prepare( $request );
-                $response->isNotModified( $request );
+                $nmfd = $response->isNotModified( $request );
 
                 $response->sendHeaders();
 
-                if(NULL === $resp = $performActionEvent->getRenderInformation()->get( RenderInfoInterface::INFO_RESPONSE )) {
-                    $renderEvent = new RenderEvent($performActionEvent->getRenderInformation(), $response);
-                    $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
+                if($nmfd == false) {
+                    if(NULL === $resp = $performActionEvent->getRenderInformation()->get( RenderInfoInterface::INFO_RESPONSE )) {
+                        $renderEvent = new RenderEvent($performActionEvent->getRenderInformation(), $response);
+                        $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
 
-                    if(!$renderEvent->getResponse()) {
-                        $e = new RenderResponseException("Response Render Error", 500);
-                        $e->setDetails("Application can not render response.");
-                        throw $e;
+                        if(!$renderEvent->getResponse()) {
+                            $e = new RenderResponseException("Response Render Error", 500);
+                            $e->setDetails("Application can not render response.");
+                            throw $e;
+                        }
+
+                        $resp = $renderEvent->getResponse();
                     }
 
-                    $resp = $renderEvent->getResponse();
+                    $resp->sendContent();
                 }
-
-                $resp->sendContent();
             } else {
                 $e = new ApplicationException("Application Launch Error", 500);
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
