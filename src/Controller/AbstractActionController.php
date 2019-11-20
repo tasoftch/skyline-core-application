@@ -42,6 +42,7 @@ use Skyline\Application\Exception\RenderResponseException;
 use Skyline\Kernel\Config\PluginConfig;
 use Skyline\Kernel\ExposeClassInterface;
 use Skyline\Kernel\Service\SkylineServiceManager;
+use Skyline\Render\Context\DefaultRenderContext;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Model\ExtractableArrayModel;
 use Skyline\Render\Model\ModelInterface;
@@ -112,6 +113,25 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     }
 
     // Methods to call inside performing actions
+
+
+    /**
+     * Use this method in templates to refer to action controllers.
+     * Normally an action controller holds a class constant for each reachable action.
+     *
+     * @param string $host                 The host, may be directly a host or a labelled registered host from compilation
+     * @param string $URI                  The URI to append
+     * @param mixed ...$arguments          Arguments to apply to the URL. List strings to apply into $0-9 markers, and an array to build query from
+     * @return string
+     * @see DefaultRenderContext::buildURL()
+     */
+    public function buildURL($host, $URI = '/', ...$arguments) {
+        $ctx = $this->get("renderContext");
+        if(method_exists($ctx, 'buildURL'))
+            return $ctx->buildURL($host, $URI, ...$arguments);
+        return NULL;
+    }
+
 
     /**
      * Calling this method will stop rendering process and send the response to the client.
