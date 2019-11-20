@@ -208,4 +208,129 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         if($expandModelInScope)
             $this->renderInfo->set(RenderInfoInterface::INFO_MODEL . "-expand", true);
     }
+
+    /**
+     * Render dynamic title for this page
+     *
+     * @param $title
+     */
+    protected function renderTitle($title) {
+        $this->renderInfo->set( RenderInfoInterface::INFO_TITLE, $title );
+    }
+
+    /**
+     * Render dynamic description for this page
+     *
+     * @param $description
+     */
+    protected function renderDescription($description) {
+        $this->renderInfo->set( RenderInfoInterface::INFO_DESCRIPTION, $description );
+    }
+
+    /**
+     * Render dynamic metadata in HTML
+     *
+     * @param $name
+     * @param $content
+     */
+    protected function renderMeta($name, $content) {
+        $meta = $this->renderInfo->get( RenderInfoInterface::INFO_DYNAMIC_META );
+        if(!$meta)
+            $meta = [];
+        $meta[$name] = $content;
+        $this->renderInfo->set( RenderInfoInterface::INFO_DYNAMIC_META, $meta );
+    }
+
+    /**
+     * Renders a logical link to the current page
+     *
+     * @param $relation
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderLogicalLink($relation, $reference, $contentType = NULL) {
+        $link = [
+            "rel" => $relation,
+            "href" => $reference
+        ];
+        if($contentType)
+            $link["type"] = $contentType;
+
+        $links = $this->renderInfo->get( RenderInfoInterface::INFO_DYNAMIC_LINKS );
+        if(!$links)
+            $links = [];
+        $links[] = $link;
+        $this->renderInfo->set( RenderInfoInterface::INFO_DYNAMIC_LINKS, $links );
+    }
+
+    /**
+     * Marks this page as a member of a collection and let the browser know where to get the next member in the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderNextPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('next', $reference, $contentType);
+    }
+
+    /**
+     * Marks this page as a member of a collection and let the browser know where to get the previous member in the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderPreviousPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('prev', $reference, $contentType);
+    }
+
+    /**
+     * Marks this page as a member of a collection and let the browser know where to get the first member in the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderFirstPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('first', $reference, $contentType);
+    }
+
+    /**
+     * Marks this page as a member of a collection and let the browser know where to get the last member in the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderLastPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('last', $reference, $contentType);
+    }
+
+    /**
+     * Marks this page as a member of a collection and let the browser know where to get the parent member of the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderParentPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('up', $reference, $contentType);
+    }
+
+    /**
+     * Tells a browser or search engine where to get a search page to look at for the collection
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderSearchPage($reference, $contentType = NULL) {
+        $this->renderLogicalLink('search', $reference, $contentType);
+    }
+
+    /**
+     * If your application knows several URL to get the same page, you should render a primary URL for the page.
+     * This might increase seo ranking, but ignoring this, your page might fall in ranking (double content punishment)
+     *
+     * @param $reference
+     * @param null $contentType
+     */
+    protected function renderCanonical($reference, $contentType = NULL) {
+        $this->renderLogicalLink('canonical', $reference, $contentType);
+    }
 }
