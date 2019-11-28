@@ -180,7 +180,9 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     }
 
     /**
-     * Cancel an action. You should explain why the action was cancelled.
+     * Cancel an action. You can explain, why the action was cancelled.
+     * Cancelling actions will immediately stop further action code and skips the render phase.
+     * But the response headers and contents until now are sent to client.
      *
      * @param string $reason
      * @param string $message
@@ -188,6 +190,21 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
      * @param mixed ...$arguments
      */
     protected function cancelAction(string $reason, string $message = "", int $code = 500, ...$arguments) {
+        $e = new ActionCancelledException($reason, $code);
+        $e->setActionController($this);
+        $e->setDetails($message, ...$arguments);
+        throw $e;
+    }
+
+    /**
+     * Cancel an action immediately, without render or sending any headers or contents.
+     *
+     * @param string $reason
+     * @param string $message
+     * @param int $code
+     * @param mixed ...$arguments
+     */
+    protected function cancelActionImmediately(string $reason, string $message = "", int $code = 500, ...$arguments) {
         $e = new ActionCancelledException($reason, $code);
         $e->setActionController($this);
         $e->setDetails($message, ...$arguments);

@@ -29,6 +29,8 @@ use Skyline\Application\Event\ActionControllerEvent;
 use Skyline\Application\Event\LaunchEvent;
 use Skyline\Application\Event\PerformActionEvent;
 use Skyline\Application\Event\RenderEvent;
+use Skyline\Application\Exception\ActionCancelledException;
+use Skyline\Application\Exception\ActionCancelledImmediatelyException;
 use Skyline\Application\Exception\ApplicationException;
 use Skyline\Application\Exception\RenderResponseException;
 use Skyline\Application\Exception\UnresolvedActionDescriptionException;
@@ -160,6 +162,19 @@ class Application implements ApplicationInterface
                 $e->setDetails("Application can not lauch because no service manager is available. Probably Skyline CMS did not bootstrap");
                 throw $e;
             }
+        } catch (ActionCancelledException $exception) {
+            if($exception instanceof ActionCancelledImmediatelyException) {
+                // Do nothing, just trigger the tear down event and throw the previous exception, if available.
+
+            } else {
+                $response->prepare( $request );
+                $response->isNotModified( $request );
+
+                $response->send();
+            }
+            // Never continue throwing action cancelled exceptions. They are for internal use only.
+            // But if you add a previous exception, this gets thrown.
+            $exception = $exception->getPrevious();
         } catch (Throwable $exception) {
             $prepateRepetition = function() use ($SERVICES) {
                 unset($SERVICES->actionDescription);
