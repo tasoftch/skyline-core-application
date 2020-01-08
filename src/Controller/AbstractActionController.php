@@ -47,6 +47,8 @@ use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Model\ExtractableArrayModel;
 use Skyline\Render\Model\ModelInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
+use Skyline\Security\CSRF\CSRFTokenManager;
+use Skyline\Security\CSRF\InputCSRFToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TASoft\Service\ServiceForwarderTrait;
@@ -57,6 +59,8 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     use ServiceForwarderTrait;
     /** @var RenderInfoInterface */
     private $renderInfo;
+
+    protected $modelClassName = ExtractableArrayModel::class;
 
     /**
      * @inheritDoc
@@ -130,6 +134,27 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         if(method_exists($ctx, 'buildURL'))
             return $ctx->buildURL($host, $URI, ...$arguments);
         return NULL;
+    }
+
+    /**
+     * Build a CSRF token and adds it to an existing model or creates a new model
+     *
+     * @param string $tokenID
+     * @param ModelInterface|NULL $model
+     * @param string $fieldName
+     * @return ModelInterface
+     * @see AbstractActionController::$modelClassName
+     */
+    public function buildCSRFModel(string $tokenID = 'skyline-csrf-token', ModelInterface $model = NULL, string $fieldName = 'CSRF') {
+        if(!$model)
+            $model = new $this->modelClassName;
+        /** @var CSRFTokenManager $csrf */
+        $csrf = $this->CSRFManager;
+        $csrf::$csrfTokenClassName = InputCSRFToken::class;
+        
+        $model[ $fieldName ] = $csrf->getToken( $tokenID );
+
+        return $model;
     }
 
 
