@@ -35,6 +35,7 @@
 namespace Skyline\Application\Controller;
 
 
+use Skyline\API\Render\OutputRenderInterface;
 use Skyline\Application\Event\RenderEvent;
 use Skyline\Application\Exception\_InternalStopRenderProcessException;
 use Skyline\Application\Exception\ActionCancelledException;
@@ -46,9 +47,8 @@ use Skyline\Render\Context\DefaultRenderContext;
 use Skyline\Render\Info\RenderInfoInterface;
 use Skyline\Render\Model\ExtractableArrayModel;
 use Skyline\Render\Model\ModelInterface;
+use Skyline\Render\Service\RenderControllerInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
-use Skyline\Security\CSRF\CSRFTokenManager;
-use Skyline\Security\CSRF\InputCSRFToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TASoft\Service\ServiceForwarderTrait;
@@ -136,27 +136,6 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         return NULL;
     }
 
-    /**
-     * Build a CSRF token and adds it to an existing model or creates a new model
-     *
-     * @param string $tokenID
-     * @param ModelInterface|NULL $model
-     * @param string $fieldName
-     * @return ModelInterface
-     * @see AbstractActionController::$modelClassName
-     */
-    public function buildCSRFModel(string $tokenID = 'skyline-csrf-token', ModelInterface $model = NULL, string $fieldName = 'CSRF') {
-        if(!$model)
-            $model = new $this->modelClassName;
-        /** @var CSRFTokenManager $csrf */
-        $csrf = $this->CSRFManager;
-        $csrf::$csrfTokenClassName = InputCSRFToken::class;
-        
-        $model[ $fieldName ] = $csrf->getToken( $tokenID );
-
-        return $model;
-    }
-
 
     /**
      * Calling this method will stop rendering process and send the response to the client.
@@ -242,6 +221,15 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
      * @param string $preferredRenderName
      */
     protected function preferRender(string $preferredRenderName) {
+        $response = $this->response;
+        if($response instanceof Response) {
+            $rc = $this->renderController;
+            if($rc instanceof RenderControllerInterface) {
+                $render = $rc->getRender( $preferredRenderName );
+                if($render instanceof OutputRenderInterface)
+                    $response->headers->set('Content-Type', $render->getContentType());
+            }
+        }
         $this->renderInfo->set( RenderInfoInterface::INFO_PREFERRED_RENDER, $preferredRenderName);
     }
 

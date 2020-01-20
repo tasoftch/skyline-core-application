@@ -29,6 +29,7 @@
   "require-dev": {
     "phpunit/phpunit": "^6",
     "skyline/compiler": "dev-master",
-    "skyline/binary": "dev-master"
+    "skyline/binary": "dev-master",
+    "skyline/api": "dev-master"
   }
 }
