@@ -58,7 +58,7 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
 {
     use ServiceForwarderTrait;
     /** @var RenderInfoInterface */
-    private $renderInfo;
+    protected $renderInfo;
 
     protected $modelClassName = ExtractableArrayModel::class;
 
