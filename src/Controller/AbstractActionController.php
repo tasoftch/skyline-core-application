@@ -116,6 +116,19 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         return $this->renderInfo;
     }
 
+	/**
+	 * If an action controller must be used outside of a perform action method, you can use this method to simulate on a given render info.
+	 *
+	 * @param RenderInfoInterface $renderInfo
+	 * @param callable $setupFunction
+	 */
+    public function setupRenderInfo(RenderInfoInterface $renderInfo, callable $setupFunction) {
+    	$ri = $this->renderInfo;
+    	$this->renderInfo = $renderInfo;
+    	call_user_func($setupFunction);
+    	$this->renderInfo = $ri;
+	}
+
     // Methods to call inside performing actions
 
 
