@@ -1,7 +1,6 @@
 {
   "name": "skyline/core-application",
   "description": "Required package to create any kind of Skyline Applications. It will add all necessary packages to launch the application for any purpose like web application or php server.",
-  "minimum-stability": "dev",
   "license": "BSD-3-Clause",
   "authors": [
     {
@@ -19,17 +18,17 @@
   },
   "require" : {
     "php": "^7.2",
-    "tasoft/event-manager": "dev-master",
-    "tasoft/service-manager": "dev-master",
-    "skyline/kernel": "dev-master",
-    "skyline/router": "dev-master",
-    "skyline/render": "dev-master",
-    "symfony/http-foundation": "dev-master"
+    "tasoft/event-manager": "^1.0",
+    "tasoft/service-manager": "^2.2",
+    "skyline/kernel": "^0.1",
+    "skyline/router": "^0.8",
+    "skyline/render": "^0.8",
+    "symfony/http-foundation": "^5.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^6",
-    "skyline/compiler": "dev-master",
-    "skyline/binary": "dev-master",
-    "skyline/api": "dev-master"
+    "skyline/compiler": "^0.8",
+    "skyline/binary": "^0.8",
+    "skyline/api": "^0.8"
   }
 }
