@@ -39,6 +39,7 @@ use Skyline\API\Render\OutputRenderInterface;
 use Skyline\Application\Event\RenderEvent;
 use Skyline\Application\Exception\_InternalStopRenderProcessException;
 use Skyline\Application\Exception\ActionCancelledException;
+use Skyline\Application\Exception\ActionCancelledImmediatelyException;
 use Skyline\Application\Exception\RenderResponseException;
 use Skyline\Kernel\Config\PluginConfig;
 use Skyline\Kernel\ExposeClassInterface;
@@ -222,7 +223,7 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
      * @param mixed ...$arguments
      */
     protected function cancelActionImmediately(string $reason, string $message = "", int $code = 500, ...$arguments) {
-        $e = new ActionCancelledException($reason, $code);
+        $e = new ActionCancelledImmediatelyException($reason, $code);
         $e->setActionController($this);
         $e->setDetails($message, ...$arguments);
         throw $e;
