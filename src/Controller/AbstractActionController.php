@@ -229,6 +229,21 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
         throw $e;
     }
 
+	/**
+	 * Calling the stop acton method immediately stops Skyline CMS.
+	 * So it will stop any output buffering and any further events and exit the program right now.
+	 * If you want to do anything before exit, you may pass a callback. Its called right before exit.
+	 *
+	 * @param callable|null $callback
+	 */
+    protected function stopAction(callable $callback = NULL) {
+    	// Maybe any active listeners
+    	ob_end_clean();
+    	if(is_callable($callback))
+    		call_user_func($callback);
+    	exit();
+	}
+
     /**
      * Tells the render process to choose a preferred render if possible.
      *
