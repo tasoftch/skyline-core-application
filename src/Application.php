@@ -122,8 +122,12 @@ class Application implements ApplicationInterface
                     throw $e;
                 }
 
+                if(!isset($response))
+					$response = new Response();
+
                 // By default, add a response object to service manager
-                $SERVICES->set("response", $response = new Response());
+				if(!$SERVICES->serviceExists("response"))
+                	$SERVICES->set("response", $response);
 
                 $performActionEvent = new PerformActionEvent($request, $actionEvent->getActionController(), $actionDescription);
                 $eventManager->triggerSection(PluginConfig::EVENT_SECTION_CONTROL, SKY_EVENT_PERFORM_ACTION, $performActionEvent);
@@ -141,7 +145,7 @@ class Application implements ApplicationInterface
 
                 $response->sendHeaders();
 
-                if($nmfd == false) {
+                if($nmfd == false && $request->getRealMethod() != 'HEAD') {
                     if(NULL === $resp = $performActionEvent->getRenderInformation()->get( RenderInfoInterface::INFO_RESPONSE )) {
                         $renderEvent = new RenderEvent($performActionEvent->getRenderInformation(), $response);
                         $eventManager->triggerSection(PluginConfig::EVENT_SECTION_RENDER, SKY_EVENT_RENDER_RESPONSE, $renderEvent);
