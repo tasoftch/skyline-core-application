@@ -50,6 +50,7 @@ use Skyline\Render\Model\ExtractableArrayModel;
 use Skyline\Render\Model\ModelInterface;
 use Skyline\Render\Service\RenderControllerInterface;
 use Skyline\Router\Description\ActionDescriptionInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TASoft\Service\ServiceForwarderTrait;
@@ -242,6 +243,32 @@ abstract class AbstractActionController implements ActionControllerInterface, Ex
     	if(is_callable($callback))
     		call_user_func($callback);
     	exit();
+	}
+
+	/**
+	 * Stops and redirect immediately to the passed URL
+	 *
+	 * @param string $URL
+	 * @param callable|null $callback
+	 */
+	protected function stopAndRedirectAction(string $URL, callable $callback = NULL) {
+    	$this->stopAction(function() use ($URL, $callback) {
+    		if(is_callable($callback))
+    			call_user_func($callback);
+
+    		header("Location: $URL");
+		});
+	}
+
+	/**
+	 * Stops and reload the same URI again.
+	 *
+	 * @param callable|null $callback
+	 */
+	protected function stopAndReloadAction(callable $callback = NULL) {
+		/** @var Request $request */
+		$request = $this->request;
+		$this->stopAndRedirectAction($request->getUri(), $callback);
 	}
 
     /**
