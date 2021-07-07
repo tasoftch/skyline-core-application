@@ -38,7 +38,7 @@ use Skyline\Render\AbstractRender;
 return [
     ARP::REGEX_CONTENT_TYPE_ROUTE => [
         "%^.*?/.*?$%i" => [
-            ARP::ROUTED_RENDER_KEY => AbstractRender::ATOMIC_TEMPLATE_RENDER
+            ARP::ROUTED_RENDER_KEY => 'html-head-render'
         ]
     ],
 ];

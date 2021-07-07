@@ -17,7 +17,7 @@
     ]
   },
   "require" : {
-    "php": "^7.2",
+    "php": ">=7.2",
     "tasoft/event-manager": "^1.0",
     "tasoft/service-manager": "^2.2",
     "skyline/kernel": "^0.8",
