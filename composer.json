@@ -20,7 +20,7 @@
     "php": "^8",
     "tasoft/event-manager": "^1.0",
     "tasoft/service-manager": "^2.2",
-    "skyline/kernel": "^0.9",
+    "skyline/kernel": "^8",
     "skyline/router": "^8",
     "skyline/render": "^8",
     "symfony/http-foundation": "^6"
@@ -29,6 +29,6 @@
     "phpunit/phpunit": "^9",
     "skyline/compiler": "^8",
     "skyline/binary": "^8",
-    "skyline/api": "^0.8"
+    "skyline/api": "^8"
   }
 }
